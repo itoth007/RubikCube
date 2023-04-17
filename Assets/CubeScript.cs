@@ -26,6 +26,7 @@ public class CubeScript : MonoBehaviour
     bool pushedF = false; // F: Front side of the cube
     bool pushedB = false; // B: Back side of the cube
     bool pushedH = false; // T: Turn the whole cube horizontal
+    bool horisontalClockwise = true; //in Horizontal case the direction is clockwise or not
     bool pushedV = false; // T: Turn the whole cube vertical
     bool pushedUp = false; // Up arrow
     bool pushedDown = false; // Down arrow
@@ -217,7 +218,14 @@ public class CubeScript : MonoBehaviour
             if (Math.Abs(currentAngle) < 90f)
             {
                 currentAngle = currentAngle + angleStep;
-                transform.RotateAround(pivotPoint, Vector3.up, -angleStep);
+                if (horisontalClockwise)
+                {
+                    transform.RotateAround(pivotPoint, Vector3.up, angleStep);
+                }
+                else
+                {
+                    transform.RotateAround(pivotPoint, Vector3.down, angleStep);
+                }
             }
             else
             {
@@ -609,11 +617,11 @@ public class CubeScript : MonoBehaviour
                 colors[side5, 1, 2] = tempOneColor;
             }
         }
-        Debug.Log("========================================");
+        //debug.Log("========================================");
         checkColor(front);
-        Debug.Log("----------------------------------------");
+        //debug.Log("----------------------------------------");
         checkColor(right);
-        Debug.Log("----------------------------------------");
+        //debug.Log("----------------------------------------");
         checkColor(back);
     }
     void moveColorsX(int side1, int side2, int side3, int side4, int side5, int level, bool direction) //  side1, side2, side3, side4, side5, level, direction                for (int i = 0; i< 3; i++)
@@ -672,11 +680,11 @@ public class CubeScript : MonoBehaviour
                 colors[side5, 1, 2] = tempOneColor;
             }
         }
-        Debug.Log("========================================");
+        //debug.Log("========================================");
         checkColor(front);
-        Debug.Log("----------------------------------------");
+        //debug.Log("----------------------------------------");
         checkColor(right);
-        Debug.Log("----------------------------------------");
+        //debug.Log("----------------------------------------");
         checkColor(back);
     }
     void moveColorsZ(int side1, int side2, int side3, int side4, int side5, int level, bool direction) //  side1, side2, side3, side4, side5, level, direction                for (int i = 0; i< 3; i++)
@@ -690,8 +698,8 @@ public class CubeScript : MonoBehaviour
             for (int i = 0; i < 3; i++)
             {
                 colors[side1, level, i] = colors[side2, i, level];
-                colors[side2, i, level] = colors[side3, level, 2-i];
-                colors[side3, level, 2-i] = colors[side4, level, 2-i];
+                colors[side2, i, level] = colors[side3, level, 2 - i];
+                colors[side3, level, 2 - i] = colors[side4, level, 2 - i];
                 colors[side4, i, level] = tempColor[i];
             }
         }
@@ -699,8 +707,8 @@ public class CubeScript : MonoBehaviour
         {
             for (int i = 0; i < 3; i++)
             {
-                colors[side1, level, i] = colors[side2, level, 2-i];
-                colors[side2, level, 2-i] = colors[side3, level, 2 - i];
+                colors[side1, level, i] = colors[side2, level, 2 - i];
+                colors[side2, level, 2 - i] = colors[side3, level, 2 - i];
                 colors[side3, level, 2 - i] = colors[side4, i, level];
                 colors[side4, i, level] = tempColor[i];
             }
@@ -742,9 +750,9 @@ public class CubeScript : MonoBehaviour
         //        int white = 0, yellow = 1, green = 2, blue = 3, orange = 4, red = 5;
 
         string[] ColorsText = { "white", "yellow", "green", "blue", "orange", "red" };
-        Debug.Log(side + " szint, szín felsõ sor: " + ColorsText[colors[side, 2, 0]] + " " + ColorsText[colors[side, 2, 1]] + " " + ColorsText[colors[side, 2, 2]]);
-        Debug.Log(side + " szint, szín középsõ sor: " + ColorsText[colors[side, 1, 0]] + " " + ColorsText[colors[side, 1, 1]] + " " + ColorsText[colors[side, 1, 2]]);
-        Debug.Log(side + " szint, szín alsó sor: " + ColorsText[colors[side, 0, 0]] + " " + ColorsText[colors[side, 0, 1]] + " " + ColorsText[colors[side, 0, 2]]);
+        //debug.Log(side + " szint, szín felsõ sor: " + ColorsText[colors[side, 2, 0]] + " " + ColorsText[colors[side, 2, 1]] + " " + ColorsText[colors[side, 2, 2]]);
+        //debug.Log(side + " szint, szín középsõ sor: " + ColorsText[colors[side, 1, 0]] + " " + ColorsText[colors[side, 1, 1]] + " " + ColorsText[colors[side, 1, 2]]);
+        //debug.Log(side + " szint, szín alsó sor: " + ColorsText[colors[side, 0, 0]] + " " + ColorsText[colors[side, 0, 1]] + " " + ColorsText[colors[side, 0, 2]]);
 
     }
 
@@ -797,11 +805,25 @@ public class CubeScript : MonoBehaviour
                 {
                     rotate9Cubes(0, 3, 0, 3, 2, 3, 0, -angleStep, 0, out pushedR, out pushedUp, 6);
                 }
-                if (hit.collider.name == "Horizontal" && !cubeMoves)
+                if (hit.collider.name == "FrontC" && !cubeMoves)
                 {
+                    rotate9Cubes(0, 3, 0, 1, 0, 3, 0, 0, angleStep, out pushedF, out pushedRight, 9);
+                }
+                if (hit.collider.name == "FrontCC" && !cubeMoves)
+                {
+                    rotate9Cubes(0, 3, 0, 1, 0, 3, 0, 0, -angleStep, out pushedF, out pushedLeft, 10);
+                }
+                if (hit.collider.name == "HorizontalCC" && !cubeMoves)
+                {
+                    horisontalClockwise = false;
                     rotate27CubesH();
                 }
-                if (hit.collider.name == "Vertical" && !cubeMoves)
+                if (hit.collider.name == "HorizontalC" && !cubeMoves)
+                {
+                    horisontalClockwise = true;
+                    rotate27CubesH();
+                }
+                if (hit.collider.name == "VerticalCC" && !cubeMoves)
                 {
                     rotate27CubesV();
                 }
