@@ -759,74 +759,114 @@ public class CubeScript : MonoBehaviour
     public void DetectObjectWithRaycast()
 
     {
+        if (Input.GetMouseButtonUp(0))
+        {
+            Vector3 p = Input.mousePosition;
+            // Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+            {
+                //Debug.Log("Up: "+p);
+            }
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray = camera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit))
             {
-                if (hit.collider.name == "UpRight" && !cubeMoves)
+
+                Debug.Log(hit.collider.name);
+                Debug.Log(hit.collider.transform.parent.name);
+                Debug.Log(hit.collider.transform.parent.childCount);
+                Debug.Log(hit.collider.transform.GetSiblingIndex());
+                for (int i = 0; i < 3; i++) // fill in 27 cube object
+                {
+                    for (int j = 0; j < 3; j++)
+                    {
+                        for (int z = 0; z < 3; z++)
+                        {
+                 //           Debug.Log(miniCubes[i, j, z].transform.name);
+                            if (miniCubes[i, j, z].transform.name == hit.collider.transform.parent.name)
+                            {
+                                Debug.Log(i + " " + j + " " + z);
+                            }
+                        }
+                    }
+                }
+                hit.collider.transform.SetSiblingIndex(1);
+                Debug.Log(hit.collider.transform.GetSiblingIndex());
+
+                if (hit.collider.transform.GetSiblingIndex() == 0)
                 {
                     rotate9Cubes(2, 3, 0, 3, 0, 3, 0, -angleStep, 0, out pushedU, out pushedRight, 3);
                 }
-                if (hit.collider.name == "UpLeft" && !cubeMoves)
-                {
-                    rotate9Cubes(2, 3, 0, 3, 0, 3, 0, angleStep, 0, out pushedU, out pushedLeft, 4);
-                }
-                if (hit.collider.name == "MiddleRight" && !cubeMoves)
-                {
-                    rotate9Cubes(1, 2, 0, 3, 0, 3, 0, -angleStep, 0, out pushedM, out pushedRight, 11);
-                }
-                if (hit.collider.name == "MiddleLeft" && !cubeMoves)
-                {
-                    rotate9Cubes(1, 2, 0, 3, 0, 3, 0, angleStep, 0, out pushedM, out pushedLeft, 12);
-                }
-                if (hit.collider.name == "DownRight" && !cubeMoves)
-                {
-                    rotate9Cubes(0, 1, 0, 3, 0, 3, 0, -angleStep, 0, out pushedD, out pushedRight, 1);
-                }
-                if (hit.collider.name == "DownLeft" && !cubeMoves)
-                {
-                    rotate9Cubes(0, 1, 0, 3, 0, 3, 0, angleStep, 0, out pushedD, out pushedLeft, 2);
-                }
-                if (hit.collider.name == "LeftDown" && !cubeMoves)
-                {
-                    rotate9Cubes(0, 3, 0, 3, 0, 1, 0, angleStep, 0, out pushedL, out pushedDown, 7);
-                }
-                if (hit.collider.name == "LeftUp" && !cubeMoves)
-                {
-                    rotate9Cubes(0, 3, 0, 3, 0, 1, 0, -angleStep, 0, out pushedL, out pushedUp, 8);
-                }
-                if (hit.collider.name == "RightDown" && !cubeMoves)
-                {
-                    rotate9Cubes(0, 3, 0, 3, 2, 3, 0, angleStep, 0, out pushedR, out pushedDown, 5);
-                }
-                if (hit.collider.name == "RightUp" && !cubeMoves)
-                {
-                    rotate9Cubes(0, 3, 0, 3, 2, 3, 0, -angleStep, 0, out pushedR, out pushedUp, 6);
-                }
-                if (hit.collider.name == "FrontC" && !cubeMoves)
-                {
-                    rotate9Cubes(0, 3, 0, 1, 0, 3, 0, 0, angleStep, out pushedF, out pushedRight, 9);
-                }
-                if (hit.collider.name == "FrontCC" && !cubeMoves)
+                if (hit.collider.transform.GetSiblingIndex() == 4)
                 {
                     rotate9Cubes(0, 3, 0, 1, 0, 3, 0, 0, -angleStep, out pushedF, out pushedLeft, 10);
                 }
-                if (hit.collider.name == "HorizontalCC" && !cubeMoves)
-                {
-                    horisontalClockwise = false;
-                    rotate27CubesH();
-                }
-                if (hit.collider.name == "HorizontalC" && !cubeMoves)
-                {
-                    horisontalClockwise = true;
-                    rotate27CubesH();
-                }
-                if (hit.collider.name == "VerticalCC" && !cubeMoves)
-                {
-                    rotate27CubesV();
-                }
+                //Debug.Log("Down: " + Input.mousePosition);
+                //if (hit.collider.name == "UpRight" && !cubeMoves)
+                //{
+                //    rotate9Cubes(2, 3, 0, 3, 0, 3, 0, -angleStep, 0, out pushedU, out pushedRight, 3);
+                //}
+                //if (hit.collider.name == "UpLeft" && !cubeMoves)
+                //{
+                //    rotate9Cubes(2, 3, 0, 3, 0, 3, 0, angleStep, 0, out pushedU, out pushedLeft, 4);
+                //}
+                //if (hit.collider.name == "MiddleRight" && !cubeMoves)
+                //{
+                //    rotate9Cubes(1, 2, 0, 3, 0, 3, 0, -angleStep, 0, out pushedM, out pushedRight, 11);
+                //}
+                //if (hit.collider.name == "MiddleLeft" && !cubeMoves)
+                //{
+                //    rotate9Cubes(1, 2, 0, 3, 0, 3, 0, angleStep, 0, out pushedM, out pushedLeft, 12);
+                //}
+                //if (hit.collider.name == "DownRight" && !cubeMoves)
+                //{
+                //    rotate9Cubes(0, 1, 0, 3, 0, 3, 0, -angleStep, 0, out pushedD, out pushedRight, 1);
+                //}
+                //if (hit.collider.name == "DownLeft" && !cubeMoves)
+                //{
+                //    rotate9Cubes(0, 1, 0, 3, 0, 3, 0, angleStep, 0, out pushedD, out pushedLeft, 2);
+                //}
+                //if (hit.collider.name == "LeftDown" && !cubeMoves)
+                //{
+                //    rotate9Cubes(0, 3, 0, 3, 0, 1, 0, angleStep, 0, out pushedL, out pushedDown, 7);
+                //}
+                //if (hit.collider.name == "LeftUp" && !cubeMoves)
+                //{
+                //    rotate9Cubes(0, 3, 0, 3, 0, 1, 0, -angleStep, 0, out pushedL, out pushedUp, 8);
+                //}
+                //if (hit.collider.name == "RightDown" && !cubeMoves)
+                //{
+                //    rotate9Cubes(0, 3, 0, 3, 2, 3, 0, angleStep, 0, out pushedR, out pushedDown, 5);
+                //}
+                //if (hit.collider.name == "RightUp" && !cubeMoves)
+                //{
+                //    rotate9Cubes(0, 3, 0, 3, 2, 3, 0, -angleStep, 0, out pushedR, out pushedUp, 6);
+                //}
+                //if (hit.collider.name == "FrontC" && !cubeMoves)
+                //{
+                //    rotate9Cubes(0, 3, 0, 1, 0, 3, 0, 0, angleStep, out pushedF, out pushedRight, 9);
+                //}
+                //if (hit.collider.name == "FrontCC" && !cubeMoves)
+                //{
+                //    rotate9Cubes(0, 3, 0, 1, 0, 3, 0, 0, -angleStep, out pushedF, out pushedLeft, 10);
+                //}
+                //if (hit.collider.name == "HorizontalCC" && !cubeMoves)
+                //{
+                //    horisontalClockwise = false;
+                //    rotate27CubesH();
+                //}
+                //if (hit.collider.name == "HorizontalC" && !cubeMoves)
+                //{
+                //    horisontalClockwise = true;
+                //    rotate27CubesH();
+                //}
+                //if (hit.collider.name == "VerticalCC" && !cubeMoves)
+                //{
+                //    rotate27CubesV();
+                //}
             }
         }
     }
