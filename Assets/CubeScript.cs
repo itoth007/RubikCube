@@ -9,6 +9,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.TestTools;
 using UnityEditor.Experimental.GraphView;
+using UnityEngine.UIElements;
 
 public class CubeScript : MonoBehaviour
 {
@@ -36,6 +37,7 @@ public class CubeScript : MonoBehaviour
     GameObject[,,] miniCubes = new GameObject[3, 3, 3]; //Containx 3x3x3= 27 mini cubes
     GameObject[] temporary9Cubes = new GameObject[9]; // During a turn only 9 cubes moves 
     int up = 0, down = 1, front = 2, back = 3, left = 4, right = 5;
+    int front1 = 0, right1 = 1, back1 = 2, left1 = 3, up1 = 4, down1 = 5;
     int white = 0, yellow = 1, green = 2, blue = 3, orange = 4, red = 5;
     int[,,] colors = new int[6, 3, 3]; // contains the six side, and one side 3x3 position; [ ,0,0] cube left down point
     int[] tempColor = new int[3];
@@ -45,11 +47,11 @@ public class CubeScript : MonoBehaviour
     Vector3 firstMousePosition;
     Vector3 secondMousePosition;
     string mouseDirection; // where to move the mouse
-    int whichCubeClickedMouseI;
-    int whichCubeClickedMouseJ;
-    int whichCubeClickedMouseK;
+    int whichCubeClickedMouseIindex;
+    int whichCubeClickedMouseJindex;
+    int whichCubeClickedMouseKindex;
     string mousetouched; // Front or Up or Right
-    GameObject tempGameobject;
+    Transform tempTransform;
     Transform hitTransform;
 
 
@@ -780,6 +782,7 @@ public class CubeScript : MonoBehaviour
                 //Debug.Log(hit.collider.name);
                 //Debug.Log(hit.collider.transform.parent.name);
                 //Debug.Log(hit.collider.transform.parent.childCount);
+                Debug.Log(hitTransform.GetSiblingIndex());
                 if (hitTransform.GetSiblingIndex() == 0) mousetouched = "Front";
                 else if (hitTransform.GetSiblingIndex() == 1) mousetouched = "Right";
                 else mousetouched = "Up";
@@ -791,9 +794,9 @@ public class CubeScript : MonoBehaviour
                         {
                             if (miniCubes[i, j, k].transform.name == hitTransform.parent.name)
                             {
-                                whichCubeClickedMouseI = i;
-                                whichCubeClickedMouseJ = j;
-                                whichCubeClickedMouseK = k;
+                                whichCubeClickedMouseIindex = i;
+                                whichCubeClickedMouseJindex = j;
+                                whichCubeClickedMouseKindex = k;
                                 //Debug.Log(i + " " + j + " " + k);
                             }
                         }
@@ -873,15 +876,26 @@ public class CubeScript : MonoBehaviour
             {
                 Debug.Log(mousetouched);
                 Debug.Log(mouseDirection);
-                Debug.Log(whichCubeClickedMouseK);
+                Debug.Log(whichCubeClickedMouseKindex);
                 if (mousetouched == "Front") // mouse pushed the Front side of the cube - 
                 {
                     if (mouseDirection == "YPlus") //Left middle or Right side rotatates clockwise
                     {
-                        switch (whichCubeClickedMouseK)
+                        switch (whichCubeClickedMouseKindex)
                         {
                             case 0:
+                                int[] sides = { down1, right1, up1, left1, front1, back1 };
+                                //int[] sides = { up1, right1, down1, left1, back1,front1  };
+                                rotate9x6Quad(sides, 3, 3, 1);
                                 rotate9Cubes(0, 3, 0, 3, 0, 1, 0, -angleStep, 0, out pushedL, out pushedUp, 8);
+                                //Debug.Log(hit.collider.name);
+                                //Debug.Log(hit.collider.transform.parent.name);
+                                //Debug.Log(hit.collider.transform.parent.childCount);
+                                //if (hitTransform.GetSiblingIndex() == 0) mousetouched = "Front";
+                                //else if (hitTransform.GetSiblingIndex() == 1) mousetouched = "Right";
+                                //Debug.Log("huhu");
+                                //hitTransform.SetSiblingIndex(hitTransform.GetSiblingIndex());
+                                //hitTransform.SetSiblingIndex(1);
                                 break;
                             case 1:
                                 break;
@@ -892,7 +906,7 @@ public class CubeScript : MonoBehaviour
                     }
                     else if (mouseDirection == "YMinus") //Left middle or Right side rotatates counter clockwise
                     {
-                        switch (whichCubeClickedMouseK)
+                        switch (whichCubeClickedMouseKindex)
                         {
                             case 0:
                                 rotate9Cubes(0, 3, 0, 3, 0, 1, 0, angleStep, 0, out pushedL, out pushedDown, 7);
@@ -929,6 +943,38 @@ public class CubeScript : MonoBehaviour
 
         }
 
+    }
+    void rotate9x6Quad(int[] sides, int iLength, int jLength, int kLength)
+    {
+        Transform tempT;
+        for (int i = 0; i < iLength; i++)
+        {
+            for (int j = 0; j < jLength; j++)
+            {
+                for (int k = 0; k < kLength; k++)
+                {
+                    if (i == 0 && j == 0 && k == 0)
+                        {
+                        Debug.Log(miniCubes[i, j, k].transform.GetChild(0) + " " + miniCubes[i, j, k].transform.GetChild(1) + " " + miniCubes[i, j, k].transform.GetChild(2)
+                            + " " + miniCubes[i, j, k].transform.GetChild(3) + " " + miniCubes[i, j, k].transform.GetChild(4) + " " + miniCubes[i, j, k].transform.GetChild(5));
+                        }
+                    for (int l = 0; l < 6; l++)
+                    {
+        //                tempT.SetAsLastSibling() = miniCubes[i, j, k].transform.GetChild(sides[l]);
+                        miniCubes[i, j, k].transform.GetChild(sides[l]).SetAsLastSibling();
+
+                        //    Debug.Log(miniCubes[i, j, k].transform.GetChild(l)); // sides[l]).name);
+                    }
+                    if (i == 0 && j == 0 && k == 0)
+                        {
+                        Debug.Log(miniCubes[i, j, k].transform.GetChild(0) + " " + miniCubes[i, j, k].transform.GetChild(1) + " " + miniCubes[i, j, k].transform.GetChild(2)
+                            + " " + miniCubes[i, j, k].transform.GetChild(3) + " " + miniCubes[i, j, k].transform.GetChild(4) + " " + miniCubes[i, j, k].transform.GetChild(5));
+                    }
+
+
+                }
+            }
+        }
     }
     string GetRotationDirection()
     {
