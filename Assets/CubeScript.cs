@@ -26,6 +26,7 @@ public class CubeScript : MonoBehaviour
     bool pushedD = false; // D: Down side of the cube
     bool pushedF = false; // F: Front side of the cube
     bool pushedB = false; // B: Back side of the cube
+    bool pushedC = false; // C: Center vertical
     bool pushedH = false; // T: Turn the whole cube horizontal
     bool horisontalClockwise = true; //in Horizontal case the direction is clockwise or not
     bool pushedV = false; // T: Turn the whole cube vertical
@@ -96,40 +97,45 @@ public class CubeScript : MonoBehaviour
             // Which side
             if (Input.GetKeyDown(KeyCode.L) == true && !cubeMoves) //Left side
             {
-                pushedL = true; pushedR = false; pushedF = false; pushedB = false; pushedD = false; pushedM = false; pushedU = false; pushedH = false; pushedV = false;
+                pushedL = true; pushedR = false; pushedF = false; pushedB = false; pushedD = false; pushedM = false; pushedU = false; pushedH = false; pushedV = false; pushedC = false;
+            }
+            if (Input.GetKeyDown(KeyCode.C) == true && !cubeMoves) //vertical center
+            {
+                pushedL = false; pushedR = false; pushedF = false; pushedB = false; pushedD = false; pushedM = false; pushedU = false; pushedH = false; pushedV = false; pushedC = true;
             }
             if (Input.GetKeyDown(KeyCode.R) == true && !cubeMoves) //Right side
             {
-                pushedL = false; pushedR = true; pushedF = false; pushedB = false; pushedD = false; pushedM = false; pushedU = false; pushedH = false; pushedV = false;
+                pushedL = false; pushedR = true; pushedF = false; pushedB = false; pushedD = false; pushedM = false; pushedU = false; pushedH = false; pushedV = false; pushedC = false;
             }
             if (Input.GetKeyDown(KeyCode.F) == true && !cubeMoves) //Front side
             {
-                pushedL = false; pushedR = false; pushedF = true; pushedB = false; pushedD = false; pushedM = false; pushedU = false; pushedH = false; pushedV = false;
+                pushedL = false; pushedR = false; pushedF = true; pushedB = false; pushedD = false; pushedM = false; pushedU = false; pushedH = false; pushedV = false; pushedC = false;
             }
             if (Input.GetKeyDown(KeyCode.B) == true && !cubeMoves) //Back side
             {
-                pushedL = false; pushedR = false; pushedF = false; pushedB = true; pushedD = false; pushedM = false; pushedU = false; pushedH = false; pushedV = false;
+                pushedL = false; pushedR = false; pushedF = false; pushedB = true; pushedD = false; pushedM = false; pushedU = false; pushedH = false; pushedV = false; pushedC = false;
             }
             if (Input.GetKeyDown(KeyCode.D) == true && !cubeMoves) //Down side
             {
-                pushedL = false; pushedR = false; pushedF = false; pushedB = false; pushedD = true; pushedM = false; pushedU = false; pushedH = false; pushedV = false;
+                pushedL = false; pushedR = false; pushedF = false; pushedB = false; pushedD = true; pushedM = false; pushedU = false; pushedH = false; pushedV = false; pushedC = false;
             }
             if (Input.GetKeyDown(KeyCode.M) == true && !cubeMoves) //Middle Layer
             {
-                pushedL = false; pushedR = false; pushedF = false; pushedB = false; pushedD = false; pushedM = true; pushedU = false; pushedH = false; pushedV = false;
+                pushedL = false; pushedR = false; pushedF = false; pushedB = false; pushedD = false; pushedM = true; pushedU = false; pushedH = false; pushedV = false; pushedC = false;
             }
             if (Input.GetKeyDown(KeyCode.U) == true && !cubeMoves) //Up side
             {
-                pushedL = false; pushedR = false; pushedF = false; pushedB = false; pushedD = false; pushedM = false; pushedU = true; pushedH = false; pushedV = false;
+                pushedL = false; pushedR = false; pushedF = false; pushedB = false; pushedD = false; pushedM = false; pushedU = true; pushedH = false; pushedV = false; pushedC = false;
             }
             if (Input.GetKeyDown(KeyCode.H) == true && !cubeMoves) //Turn the whole cube horizontal
             {
-                pushedL = false; pushedR = false; pushedF = false; pushedB = false; pushedD = false; pushedM = false; pushedU = false; pushedH = true; pushedV = false;
+                pushedL = false; pushedR = false; pushedF = false; pushedB = false; pushedD = false; pushedM = false; pushedU = false; pushedH = true; pushedV = false; pushedC = false;
             }
             if (Input.GetKeyDown(KeyCode.V) == true && !cubeMoves) //Turn the whole cube vertical
             {
-                pushedL = false; pushedR = false; pushedF = false; pushedB = false; pushedD = false; pushedM = false; pushedU = false; pushedH = false; pushedV = true;
+                pushedL = false; pushedR = false; pushedF = false; pushedB = false; pushedD = false; pushedM = false; pushedU = false; pushedH = false; pushedV = true; pushedC = false;
             }
+           
 
             // Which arrow ------------------------------------------------------------------------------------------------------
             if (Input.GetKeyDown(KeyCode.UpArrow) == true && !cubeMoves) //Left side, arrow up, X
@@ -148,6 +154,8 @@ public class CubeScript : MonoBehaviour
             {
                 pushedUp = false; pushedDown = false; pushedRight = true; pushedLeft = false;
             }
+            
+            
             // Which side and which arrow ---------------------------------------------------------------------------------------------
             //LEFT OR RIGHT SIDE
             if (pushedL && pushedUp) //Left side, arrow up, X
@@ -159,9 +167,19 @@ public class CubeScript : MonoBehaviour
             {
                 //rotate9Cubes(0, 3, 0, 3, 0, 1, angleStep, 0, 0, out pushedL, out pushedDown, 7);
             }
+            if (pushedC && pushedUp) //center vertical, arrow up, X
+            {
+                sides[0] = down1; sides[1] = right1; sides[2] = up1; sides[3] = left1; sides[4] = front1; sides[5] = back1;
+                rotate9Cubes(sides, 0, 3, 0, 3, 1, 2, -angleStep, 0, 0, out pushedC, out pushedUp, 14);
+            }
+            if (pushedC && pushedDown) // center vertical side, arrow down, X
+            {
+                //rotate9Cubes(0, 3, 0, 3, 2, 3, angleStep, 0, 0, out pushedR, out pushedDown, 5);
+            }
             if (pushedR && pushedUp) //Right side, arrow up, X
             {
-                //rotate9Cubes(0, 3, 0, 3, 2, 3, -angleStep, 0, 0, out pushedR, out pushedUp, 6);
+                sides[0] = down1; sides[1] = right1; sides[2] = up1; sides[3] = left1; sides[4] = front1; sides[5] = back1;
+                rotate9Cubes(sides, 0, 3, 0, 3, 2, 3, -angleStep, 0, 0, out pushedR, out pushedUp, 6);
             }
             if (pushedR && pushedDown) // Right side, arrow down, X
             {
@@ -365,13 +383,13 @@ public class CubeScript : MonoBehaviour
                         temporary9Cubes[temp] = miniCubes[i, j, k]; // pick up the 9 mini cubes, I rotate them later
                         temp++;
                         int[] offset = { 0, 0, 0, 0, 0, 0 }; // complicated 5 lines come. I rotate one mini cube's 6 sides, There is an order of six sides: Front, right, back, left, up, down
-                                                               // With sibling index put the side forward in the list, but the the sides shifting makes bad order. I repair it with offset.
+                                                             // With sibling index put the side forward in the list, but the the sides shifting makes bad order. I repair it with offset.
                         for (int l = 0; l < 6; l++) // six side
                         {
                             miniCubes[i, j, k].transform.GetChild(sides[l] + offset[sides[l]]).SetSiblingIndex(l);
                             for (int m = 0; m < 6; m++)
                             {
-                                if (sides[l] > m) 
+                                if (sides[l] > m)
                                     offset[m]++;
                             }
                         }
@@ -576,6 +594,18 @@ public class CubeScript : MonoBehaviour
                 movesCube(10, 7);
                 movesCube(19, 8);
                 moveColorsX(down, front, up, back, right, 1, false); //  side1, side2, side3, side4, side5, level,direction
+                break;
+            case 14: // Center up
+                movesCube(19, 0);
+                movesCube(10, 1);
+                movesCube(1, 2);
+                movesCube(22, 3);
+                movesCube(13, 4);
+                movesCube(4, 5);
+                movesCube(25, 6);
+                movesCube(16, 7);
+                movesCube(7, 8);
+                moveColorsX(down, back, up, front, right, 1, true); //  side1, side2, side3, side4, side5, level,direction
                 break;
         }
     }
@@ -795,22 +825,27 @@ public class CubeScript : MonoBehaviour
                 //Debug.Log(hit.collider.name);
                 //Debug.Log(hit.collider.transform.parent.name);
                 //Debug.Log(hit.collider.transform.parent.childCount);
-                Debug.Log(hitTransform.GetSiblingIndex());
-                if (hitTransform.GetSiblingIndex() == 0) mousetouched = "Front";
-                else if (hitTransform.GetSiblingIndex() == 1) mousetouched = "Right";
-                else mousetouched = "Up";
+                //Debug.Log(hitTransform.GetSiblingIndex());
+                Debug.Log("kint");
+                if (hitTransform.GetSiblingIndex() == 0) 
+                    mousetouched = "Front";
+                else if (hitTransform.GetSiblingIndex() == 1) 
+                    mousetouched = "Right";
+                else 
+                    mousetouched = "Up";
                 for (int i = 0; i < 3; i++) // search mini cube amoung the 27 cube objects
                 {
                     for (int j = 0; j < 3; j++)
                     {
                         for (int k = 0; k < 3; k++)
                         {
+                            Debug.Log("tn:" + miniCubes[i, j, k].transform.name + " tpn: " + hitTransform.parent.name);
                             if (miniCubes[i, j, k].transform.name == hitTransform.parent.name)
                             {
                                 whichCubeClickedMouseIindex = i;
                                 whichCubeClickedMouseJindex = j;
                                 whichCubeClickedMouseKindex = k;
-                                //Debug.Log(i + " " + j + " " + k);
+                                //Debug.Log("                                                           tn:"+ miniCubes[i, j, k].transform.name+" "+i + " " + j + " " + k+"tpn: "+ hitTransform.parent.name) ;
                             }
                         }
                     }
@@ -898,15 +933,15 @@ public class CubeScript : MonoBehaviour
                         {
                             case 0:
                                 sides[0] = down1; sides[1] = right1; sides[2] = up1; sides[3] = left1; sides[4] = front1; sides[5] = back1;
-                                //rotate9x6Quad(sides, 0, 3, 0, 3, 0, 1);
-                                rotate9Cubes(sides,  0, 3, 0, 3, 0, 1, 0, -angleStep, 0, out pushedL, out pushedUp, 8);
+                                rotate9Cubes(sides, 0, 3, 0, 3, 0, 1, 0, -angleStep, 0, out pushedL, out pushedUp, 8);
                                 break;
                             case 1:
+                                sides[0] = down1; sides[1] = right1; sides[2] = up1; sides[3] = left1; sides[4] = front1; sides[5] = back1;
+                                rotate9Cubes(sides, 0, 3, 0, 3, 1, 2, -angleStep, 0, 0, out pushedC, out pushedUp, 14);
                                 break;
                             case 2:
                                 sides[0] = down1; sides[1] = right1; sides[2] = up1; sides[3] = left1; sides[4] = front1; sides[5] = back1;
-                                //rotate9x6Quad(sides, 0, 3, 0, 3, 2, 3);
-                                //rotate9Cubes(sides,0, 3, 0, 3, 2, 3, 0, -angleStep, 0, out pushedR, out pushedUp, 6);
+                                rotate9Cubes(sides, 0, 3, 0, 3, 2, 3, 0, -angleStep, 0, out pushedR, out pushedUp, 6);
                                 break;
                         }
                     }
@@ -990,7 +1025,7 @@ public class CubeScript : MonoBehaviour
         deltaX = secondMousePosition.x - firstMousePosition.x;
         deltaY = secondMousePosition.y - firstMousePosition.y;
         deltaZ = secondMousePosition.z - firstMousePosition.z;
-        if (Mathf.Abs(deltaY) > Mathf.Abs(deltaX) * 2.5) // in perspective it is a good number the 2.5
+        if (Mathf.Abs(deltaY) > Mathf.Abs(deltaX) * 2) // in perspective it is a good number the 2
         {
             if (deltaY < 0) return "YMinus";
             else return "YPlus";
@@ -1008,25 +1043,25 @@ public class CubeScript : MonoBehaviour
     }
 }
 
-    //if (i == 0 && j == 0 && k == 0)
-    //{
-    //    Debug.Log(miniCubes[i, j, k].transform.GetChild(0) + " " + miniCubes[i, j, k].transform.GetChild(1) + " " + miniCubes[i, j, k].transform.GetChild(2)
-    //        + " " + miniCubes[i, j, k].transform.GetChild(3) + " " + miniCubes[i, j, k].transform.GetChild(4) + " " + miniCubes[i, j, k].transform.GetChild(5));
-    //}
+//if (i == 0 && j == 0 && k == 0)
+//{
+//    Debug.Log(miniCubes[i, j, k].transform.GetChild(0) + " " + miniCubes[i, j, k].transform.GetChild(1) + " " + miniCubes[i, j, k].transform.GetChild(2)
+//        + " " + miniCubes[i, j, k].transform.GetChild(3) + " " + miniCubes[i, j, k].transform.GetChild(4) + " " + miniCubes[i, j, k].transform.GetChild(5));
+//}
 
-    //if (i == 0 && j == 0 && k == 0)
-    //{
-    //    Debug.Log(miniCubes[i, j, k].transform.GetChild(0) + " " + miniCubes[i, j, k].transform.GetChild(1) + " " + miniCubes[i, j, k].transform.GetChild(2)
-    //        + " " + miniCubes[i, j, k].transform.GetChild(3) + " " + miniCubes[i, j, k].transform.GetChild(4) + " " + miniCubes[i, j, k].transform.GetChild(5));
-    //}
+//if (i == 0 && j == 0 && k == 0)
+//{
+//    Debug.Log(miniCubes[i, j, k].transform.GetChild(0) + " " + miniCubes[i, j, k].transform.GetChild(1) + " " + miniCubes[i, j, k].transform.GetChild(2)
+//        + " " + miniCubes[i, j, k].transform.GetChild(3) + " " + miniCubes[i, j, k].transform.GetChild(4) + " " + miniCubes[i, j, k].transform.GetChild(5));
+//}
 
-    //Debug.Log(miniCubes[i, j, k].transform.GetChild(l)); // sides[l]).name);
+//Debug.Log(miniCubes[i, j, k].transform.GetChild(l)); // sides[l]).name);
 
-    //if (i == 0 && j == 0 && k == 0)
-    //{
-    //    Debug.Log(miniCubes[i, j, k].transform.GetChild(0) + " " + miniCubes[i, j, k].transform.GetChild(1) + " " + miniCubes[i, j, k].transform.GetChild(2)
-    //        + " " + miniCubes[i, j, k].transform.GetChild(3) + " " + miniCubes[i, j, k].transform.GetChild(4) + " " + miniCubes[i, j, k].transform.GetChild(5));
-    //}
+//if (i == 0 && j == 0 && k == 0)
+//{
+//    Debug.Log(miniCubes[i, j, k].transform.GetChild(0) + " " + miniCubes[i, j, k].transform.GetChild(1) + " " + miniCubes[i, j, k].transform.GetChild(2)
+//        + " " + miniCubes[i, j, k].transform.GetChild(3) + " " + miniCubes[i, j, k].transform.GetChild(4) + " " + miniCubes[i, j, k].transform.GetChild(5));
+//}
 
 //Transform[] child = { null, null, null, null, null, null };
 //GameObject father = new GameObject();
