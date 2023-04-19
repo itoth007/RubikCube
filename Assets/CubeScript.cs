@@ -53,6 +53,7 @@ public class CubeScript : MonoBehaviour
     string mousetouched; // Front or Up or Right
     Transform tempTransform;
     Transform hitTransform;
+    int[] sides = { 0, 0, 0, 0, 0, 0 };
 
 
 
@@ -151,53 +152,54 @@ public class CubeScript : MonoBehaviour
             //LEFT OR RIGHT SIDE
             if (pushedL && pushedUp) //Left side, arrow up, X
             {
-                rotate9Cubes(0, 3, 0, 3, 0, 1, -angleStep, 0, 0, out pushedL, out pushedUp, 8);
+                sides[0] = down1; sides[1] = right1; sides[2] = up1; sides[3] = left1; sides[4] = front1; sides[5] = back1;
+                rotate9Cubes(sides, 0, 3, 0, 3, 0, 1, -angleStep, 0, 0, out pushedL, out pushedUp, 8);
             }
             if (pushedL && pushedDown) //Left side, arrow down, X
             {
-                rotate9Cubes(0, 3, 0, 3, 0, 1, angleStep, 0, 0, out pushedL, out pushedDown, 7);
+                //rotate9Cubes(0, 3, 0, 3, 0, 1, angleStep, 0, 0, out pushedL, out pushedDown, 7);
             }
             if (pushedR && pushedUp) //Right side, arrow up, X
             {
-                rotate9Cubes(0, 3, 0, 3, 2, 3, -angleStep, 0, 0, out pushedR, out pushedUp, 6);
+                //rotate9Cubes(0, 3, 0, 3, 2, 3, -angleStep, 0, 0, out pushedR, out pushedUp, 6);
             }
             if (pushedR && pushedDown) // Right side, arrow down, X
             {
-                rotate9Cubes(0, 3, 0, 3, 2, 3, angleStep, 0, 0, out pushedR, out pushedDown, 5);
+                //rotate9Cubes(0, 3, 0, 3, 2, 3, angleStep, 0, 0, out pushedR, out pushedDown, 5);
             }
             //UP OR DOWN SIDE
             if (pushedU && pushedLeft) //Up side, arrow Left, Y
             {
-                rotate9Cubes(2, 3, 0, 3, 0, 3, 0, angleStep, 0, out pushedU, out pushedLeft, 4);
+                //rotate9Cubes(2, 3, 0, 3, 0, 3, 0, angleStep, 0, out pushedU, out pushedLeft, 4);
             }
             if (pushedU && pushedRight) //Up side, arrow right, Y
             {
-                rotate9Cubes(2, 3, 0, 3, 0, 3, 0, -angleStep, 0, out pushedU, out pushedRight, 3);
+                //rotate9Cubes(2, 3, 0, 3, 0, 3, 0, -angleStep, 0, out pushedU, out pushedRight, 3);
             }
             if (pushedM && pushedLeft) //Down side, arrow left, Y
             {
-                rotate9Cubes(1, 2, 0, 3, 0, 3, 0, angleStep, 0, out pushedM, out pushedLeft, 12);
+                //rotate9Cubes(1, 2, 0, 3, 0, 3, 0, angleStep, 0, out pushedM, out pushedLeft, 12);
             }
             if (pushedM && pushedRight) // Down side, arrow right, Y
             {
-                rotate9Cubes(1, 2, 0, 3, 0, 3, 0, -angleStep, 0, out pushedM, out pushedRight, 11);
+                //rotate9Cubes(1, 2, 0, 3, 0, 3, 0, -angleStep, 0, out pushedM, out pushedRight, 11);
             }
             if (pushedD && pushedLeft) //Down side, arrow left, Y
             {
-                rotate9Cubes(0, 1, 0, 3, 0, 3, 0, angleStep, 0, out pushedD, out pushedLeft, 2);
+                //rotate9Cubes(0, 1, 0, 3, 0, 3, 0, angleStep, 0, out pushedD, out pushedLeft, 2);
             }
             if (pushedD && pushedRight) // Down side, arrow right, Y
             {
-                rotate9Cubes(0, 1, 0, 3, 0, 3, 0, -angleStep, 0, out pushedD, out pushedRight, 1);
+                //rotate9Cubes(0, 1, 0, 3, 0, 3, 0, -angleStep, 0, out pushedD, out pushedRight, 1);
             }
             //FRONT OR BACK SIDE
             if (pushedF && pushedLeft) //Front side, arrow left, Z
             {
-                rotate9Cubes(0, 3, 0, 1, 0, 3, 0, 0, -angleStep, out pushedF, out pushedLeft, 10);
+                //rotate9Cubes(0, 3, 0, 1, 0, 3, 0, 0, -angleStep, out pushedF, out pushedLeft, 10);
             }
             if (pushedF && pushedRight) //Front side, arrow right, Z
             {
-                rotate9Cubes(0, 3, 0, 1, 0, 3, 0, 0, angleStep, out pushedF, out pushedRight, 9);
+                //rotate9Cubes(0, 3, 0, 1, 0, 3, 0, 0, angleStep, out pushedF, out pushedRight, 9);
             }
             if (pushedB && pushedLeft) //Back side, arrow left, Z
             {
@@ -209,11 +211,11 @@ public class CubeScript : MonoBehaviour
             }
             if (pushedH) // rotate the whole cube
             {
-                rotate27CubesH();
+                //rotate27CubesH();
             }
             if (pushedV) // rotate the whole cube
             {
-                rotate27CubesV();
+                //rotate27CubesV();
             }
         }
     }
@@ -339,7 +341,7 @@ public class CubeScript : MonoBehaviour
             timer = 0;
         }
     }
-    void rotate9Cubes(int iFrom, int iTo, int jFrom, int jTo, int kFrom, int kTo, float x, float y, float z,
+    void rotate9Cubes(int[] sides, int iFrom, int iTo, int jFrom, int jTo, int kFrom, int kTo, float x, float y, float z,
         out bool push1, out bool push2, int conversVersion)
     // iFrom 0, iTo 1, jFrom 0, jTo 3, kFrom 0, kTo 3: Down
     // iFrom 1, iTo 2, jFrom 0, jTo 3, kFrom 0, kTo 3: Middle
@@ -360,8 +362,19 @@ public class CubeScript : MonoBehaviour
                 {
                     for (int k = kFrom; k < kTo; k++)
                     {
-                        temporary9Cubes[temp] = miniCubes[i, j, k];
+                        temporary9Cubes[temp] = miniCubes[i, j, k]; // pick up the 9 mini cubes, I rotate them later
                         temp++;
+                        int[] offset = { 0, 0, 0, 0, 0, 0 }; // complicated 5 lines come. I rotate one mini cube's 6 sides, There is an order of six sides: Front, right, back, left, up, down
+                                                               // With sibling index put the side forward in the list, but the the sides shifting makes bad order. I repair it with offset.
+                        for (int l = 0; l < 6; l++) // six side
+                        {
+                            miniCubes[i, j, k].transform.GetChild(sides[l] + offset[sides[l]]).SetSiblingIndex(l);
+                            for (int m = 0; m < 6; m++)
+                            {
+                                if (sides[l] > m) 
+                                    offset[m]++;
+                            }
+                        }
                     }
                 }
             }
@@ -377,7 +390,7 @@ public class CubeScript : MonoBehaviour
                 currentAngle = currentAngle + angleStep;
                 for (int k = 0; k < 9; k++)
                 {
-                    if (x != 0)
+                    if (x != 0) // according to axis, I rotate
                     {
                         temporary9Cubes[k].transform.RotateAround(pivotPoint, Vector3.left, x);
                     }
@@ -884,23 +897,16 @@ public class CubeScript : MonoBehaviour
                         switch (whichCubeClickedMouseKindex)
                         {
                             case 0:
-                                int[] sides = { down1, right1, up1, left1, front1, back1 };
-                                //int[] sides = { up1, right1, down1, left1, back1,front1  };
-                                rotate9x6Quad(sides, 3, 3, 1);
-                                rotate9Cubes(0, 3, 0, 3, 0, 1, 0, -angleStep, 0, out pushedL, out pushedUp, 8);
-                                //Debug.Log(hit.collider.name);
-                                //Debug.Log(hit.collider.transform.parent.name);
-                                //Debug.Log(hit.collider.transform.parent.childCount);
-                                //if (hitTransform.GetSiblingIndex() == 0) mousetouched = "Front";
-                                //else if (hitTransform.GetSiblingIndex() == 1) mousetouched = "Right";
-                                //Debug.Log("huhu");
-                                //hitTransform.SetSiblingIndex(hitTransform.GetSiblingIndex());
-                                //hitTransform.SetSiblingIndex(1);
+                                sides[0] = down1; sides[1] = right1; sides[2] = up1; sides[3] = left1; sides[4] = front1; sides[5] = back1;
+                                //rotate9x6Quad(sides, 0, 3, 0, 3, 0, 1);
+                                rotate9Cubes(sides,  0, 3, 0, 3, 0, 1, 0, -angleStep, 0, out pushedL, out pushedUp, 8);
                                 break;
                             case 1:
                                 break;
                             case 2:
-                                rotate9Cubes(0, 3, 0, 3, 2, 3, 0, -angleStep, 0, out pushedR, out pushedUp, 6);
+                                sides[0] = down1; sides[1] = right1; sides[2] = up1; sides[3] = left1; sides[4] = front1; sides[5] = back1;
+                                //rotate9x6Quad(sides, 0, 3, 0, 3, 2, 3);
+                                //rotate9Cubes(sides,0, 3, 0, 3, 2, 3, 0, -angleStep, 0, out pushedR, out pushedUp, 6);
                                 break;
                         }
                     }
@@ -909,12 +915,12 @@ public class CubeScript : MonoBehaviour
                         switch (whichCubeClickedMouseKindex)
                         {
                             case 0:
-                                rotate9Cubes(0, 3, 0, 3, 0, 1, 0, angleStep, 0, out pushedL, out pushedDown, 7);
+                                //rotate9Cubes(0, 3, 0, 3, 0, 1, 0, angleStep, 0, out pushedL, out pushedDown, 7);
                                 break;
                             case 1:
                                 break;
                             case 2:
-                                rotate9Cubes(0, 3, 0, 3, 2, 3, 0, angleStep, 0, out pushedR, out pushedDown, 5);
+                                //rotate9Cubes(0, 3, 0, 3, 2, 3, 0, angleStep, 0, out pushedR, out pushedDown, 5);
                                 break;
                         }
                     }
@@ -944,38 +950,37 @@ public class CubeScript : MonoBehaviour
         }
 
     }
-    void rotate9x6Quad(int[] sides, int iLength, int jLength, int kLength)
+    void rotate9x6Quad(int[] sides, int iFrom, int iTo, int jFrom, int jTo, int kFrom, int kTo)
     {
-        Transform tempT;
-        for (int i = 0; i < iLength; i++)
+        for (int i = iFrom; i < iTo; i++)
         {
-            for (int j = 0; j < jLength; j++)
+            for (int j = jFrom; j < jTo; j++)
             {
-                for (int k = 0; k < kLength; k++)
+                for (int k = kFrom; k < kTo; k++)
                 {
-                    if (i == 0 && j == 0 && k == 0)
-                        {
-                        Debug.Log(miniCubes[i, j, k].transform.GetChild(0) + " " + miniCubes[i, j, k].transform.GetChild(1) + " " + miniCubes[i, j, k].transform.GetChild(2)
-                            + " " + miniCubes[i, j, k].transform.GetChild(3) + " " + miniCubes[i, j, k].transform.GetChild(4) + " " + miniCubes[i, j, k].transform.GetChild(5));
-                        }
+                    int[] offset = { 0, 0, 0, 0, 0, 0 };
                     for (int l = 0; l < 6; l++)
                     {
-        //                tempT.SetAsLastSibling() = miniCubes[i, j, k].transform.GetChild(sides[l]);
-                        miniCubes[i, j, k].transform.GetChild(sides[l]).SetAsLastSibling();
-
-                        //    Debug.Log(miniCubes[i, j, k].transform.GetChild(l)); // sides[l]).name);
-                    }
-                    if (i == 0 && j == 0 && k == 0)
+                        miniCubes[i, j, k].transform.GetChild(sides[l] + offset[sides[l]]).SetSiblingIndex(l);
+                        //Debug.Log("                                                      -    " + (sides[l] + offset[l]) + " hely menjen a " + l + " helyre");
+                        for (int m = 0; m < 6; m++)
                         {
-                        Debug.Log(miniCubes[i, j, k].transform.GetChild(0) + " " + miniCubes[i, j, k].transform.GetChild(1) + " " + miniCubes[i, j, k].transform.GetChild(2)
-                            + " " + miniCubes[i, j, k].transform.GetChild(3) + " " + miniCubes[i, j, k].transform.GetChild(4) + " " + miniCubes[i, j, k].transform.GetChild(5));
+                            if (i == 0 && j == 0 && k == 0)
+                            {
+                                //Debug.Log("l: " + l + " sides[l]: " + sides[l] + " m: " + m + " offset[m]:" + offset[m]);
+                            }
+                            if (sides[l] > m)//+ offset[m])
+                            {
+                                //Debug.Log("bent");
+                                offset[m]++;
+                            }
+                        }
                     }
-
-
                 }
             }
         }
     }
+
     string GetRotationDirection()
     {
         float deltaX = 0; // delta between first and second mouseposition
@@ -1002,3 +1007,42 @@ public class CubeScript : MonoBehaviour
         }
     }
 }
+
+    //if (i == 0 && j == 0 && k == 0)
+    //{
+    //    Debug.Log(miniCubes[i, j, k].transform.GetChild(0) + " " + miniCubes[i, j, k].transform.GetChild(1) + " " + miniCubes[i, j, k].transform.GetChild(2)
+    //        + " " + miniCubes[i, j, k].transform.GetChild(3) + " " + miniCubes[i, j, k].transform.GetChild(4) + " " + miniCubes[i, j, k].transform.GetChild(5));
+    //}
+
+    //if (i == 0 && j == 0 && k == 0)
+    //{
+    //    Debug.Log(miniCubes[i, j, k].transform.GetChild(0) + " " + miniCubes[i, j, k].transform.GetChild(1) + " " + miniCubes[i, j, k].transform.GetChild(2)
+    //        + " " + miniCubes[i, j, k].transform.GetChild(3) + " " + miniCubes[i, j, k].transform.GetChild(4) + " " + miniCubes[i, j, k].transform.GetChild(5));
+    //}
+
+    //Debug.Log(miniCubes[i, j, k].transform.GetChild(l)); // sides[l]).name);
+
+    //if (i == 0 && j == 0 && k == 0)
+    //{
+    //    Debug.Log(miniCubes[i, j, k].transform.GetChild(0) + " " + miniCubes[i, j, k].transform.GetChild(1) + " " + miniCubes[i, j, k].transform.GetChild(2)
+    //        + " " + miniCubes[i, j, k].transform.GetChild(3) + " " + miniCubes[i, j, k].transform.GetChild(4) + " " + miniCubes[i, j, k].transform.GetChild(5));
+    //}
+
+//Transform[] child = { null, null, null, null, null, null };
+//GameObject father = new GameObject();
+//for (int l = 0; l < 6; l++)
+//{
+//    child[l] =null;
+//}
+//for (int l = 0; l < 6; l++)
+//{
+//    child[l] = miniCubes[i, j, k].transform.GetChild(sides[l]);
+
+//    //                    child[l].transform.parent = father.transform;
+//}
+//for (int l = 0; l < 6; l++)
+//{
+
+//    child[l].SetParent(miniCubes[i, j, k].transform, false);
+//    //           miniCubes[i, j, k].transform.GetChild(l).transform.parent = child[l].transform.parent.transform;
+//}
