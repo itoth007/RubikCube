@@ -10,6 +10,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.TestTools;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine.UIElements;
+using Unity.VisualScripting.Antlr3.Runtime;
 
 public class CubeScript : MonoBehaviour
 {
@@ -19,22 +20,23 @@ public class CubeScript : MonoBehaviour
     private float timer = 0;
     public float angleStep = 1;
     private float currentAngle = 0;
-    bool pushedL = false; // L: Left side of the cube
-    bool pushedR = false; // R: Right side of the cube
-    bool pushedU = false; // U: Up side of the cube
-    bool pushedM = false; // M: middle layer of the cube
-    bool pushedD = false; // D: Down side of the cube
-    bool pushedF = false; // F: Front side of the cube
-    bool pushedB = false; // B: Back side of the cube
-    bool pushedC = false; // C: Center vertical
-    bool pushedH = false; // T: Turn the whole cube horizontal
+    bool pressedL = false; // L: Left side of the cube
+    bool pressedR = false; // R: Right side of the cube
+    bool pressedX = false; // X: X Middle layer vbetween Left and Right
+    bool pressedU = false; // U: Up side of the cube
+    bool pressedD = false; // D: Down side of the cube
+    bool pressedY = false; // Y: Y Middle layer between Up and Down
+    bool pressedF = false; // F: Front side of the cube
+    bool pressedB = false; // B: Back side of the cube
+    bool pressedZ = false; // Z: Z Middle layer between Front and Back
+    bool pressedH = false; // H: Turn the whole cube horizontal
+    bool pressedV = false; // V: Turn the whole cube vertical
     bool horisontalClockwise = true; //in Horizontal case the direction is clockwise or not
-    bool pushedV = false; // T: Turn the whole cube vertical
-    bool pushedUp = false; // Up arrow
-    bool pushedDown = false; // Down arrow
-    bool pushedLeft = false; // Left arrow
-    bool pushedRight = false; // Right arrow
-    bool cubeMoves = false;
+    bool pressedUpArrow = false; // Up arrow
+    bool pressedDownArrow = false; // Down arrow
+    bool pressedLeftArrow = false; // Left arrow
+    bool pressedRightArrow = false; // Right arrow
+    bool cubeMoves = false; // not it rotates or not
     GameObject[,,] miniCubes = new GameObject[3, 3, 3]; //Containx 3x3x3= 27 mini cubes
     GameObject[] temporary9Cubes = new GameObject[9]; // During a turn only 9 cubes moves 
     int up = 0, down = 1, front = 2, back = 3, left = 4, right = 5;
@@ -48,9 +50,9 @@ public class CubeScript : MonoBehaviour
     Vector3 firstMousePosition;
     Vector3 secondMousePosition;
     string mouseDirection; // where to move the mouse
-    int whichCubeClickedMouseIindex;
-    int whichCubeClickedMouseJindex;
-    int whichCubeClickedMouseKindex;
+    int whichCubeClickedMouse_I_index;
+    int whichCubeClickedMouse_J_index;
+    int whichCubeClickedMouse_K_index;
     string mousetouched; // Front or Up or Right
     Transform tempTransform;
     Transform hitTransform;
@@ -87,161 +89,183 @@ public class CubeScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        DetectObjectWithRaycast();
-        //     if (!cubeMoves)
+        // There are two rotating method:
+        //          1: with keys (letter determines sides - 9 mini cube from 27. Plus arrowKeys determins the direction
+        //          2. With mouse drag and rotate
+        // 1. method: keys and arrowKeys
+        // Key pressed? And which one?
+        WhichLetterPressed();
+
+        // ArrowKey pressed? And which one
+        WhichArrowKeyPressed();
+
+        // We know the letter (side - 9 mmini cubes from 2)7 and the arrow key, then rotate
+
+        //LEFT OR RIGHT or between them the X MIDDLE LAYER SIDE - axis X
+        Rotate9MiniCubesAxisX();
+
+        //UP OR DOWN or betweenn them the Y MIDDLE LAYER SIDE - axis Y
+        Rotate9MiniCubesAxisY();
+
+        //FRONT OR BACK betweenn them the Z MIDDLE LAYER SIDE - axis Z
+        Rotate9MiniCubesAxisZ();
+
+        if (pressedH) // rotate the whole cube
         {
-            // Right or Left side rotate with L or R button and up and down arrow, we use X coordinate in rotate
-            // Down or Up side rotate with D or U button and left and right arrow, we use Y coordinate in rotate
-            // Front or Back side rotate with F or B button and left and right arrow, we use Z coordinate in rotate
-
-            // Which side
-            if (Input.GetKeyDown(KeyCode.L) == true && !cubeMoves) //Left side
-            {
-                pushedL = true; pushedR = false; pushedF = false; pushedB = false; pushedD = false; pushedM = false; pushedU = false; pushedH = false; pushedV = false; pushedC = false;
-            }
-            if (Input.GetKeyDown(KeyCode.C) == true && !cubeMoves) //vertical center
-            {
-                pushedL = false; pushedR = false; pushedF = false; pushedB = false; pushedD = false; pushedM = false; pushedU = false; pushedH = false; pushedV = false; pushedC = true;
-            }
-            if (Input.GetKeyDown(KeyCode.R) == true && !cubeMoves) //Right side
-            {
-                pushedL = false; pushedR = true; pushedF = false; pushedB = false; pushedD = false; pushedM = false; pushedU = false; pushedH = false; pushedV = false; pushedC = false;
-            }
-            if (Input.GetKeyDown(KeyCode.F) == true && !cubeMoves) //Front side
-            {
-                pushedL = false; pushedR = false; pushedF = true; pushedB = false; pushedD = false; pushedM = false; pushedU = false; pushedH = false; pushedV = false; pushedC = false;
-            }
-            if (Input.GetKeyDown(KeyCode.B) == true && !cubeMoves) //Back side
-            {
-                pushedL = false; pushedR = false; pushedF = false; pushedB = true; pushedD = false; pushedM = false; pushedU = false; pushedH = false; pushedV = false; pushedC = false;
-            }
-            if (Input.GetKeyDown(KeyCode.D) == true && !cubeMoves) //Down side
-            {
-                pushedL = false; pushedR = false; pushedF = false; pushedB = false; pushedD = true; pushedM = false; pushedU = false; pushedH = false; pushedV = false; pushedC = false;
-            }
-            if (Input.GetKeyDown(KeyCode.M) == true && !cubeMoves) //Middle Layer
-            {
-                pushedL = false; pushedR = false; pushedF = false; pushedB = false; pushedD = false; pushedM = true; pushedU = false; pushedH = false; pushedV = false; pushedC = false;
-            }
-            if (Input.GetKeyDown(KeyCode.U) == true && !cubeMoves) //Up side
-            {
-                pushedL = false; pushedR = false; pushedF = false; pushedB = false; pushedD = false; pushedM = false; pushedU = true; pushedH = false; pushedV = false; pushedC = false;
-            }
-            if (Input.GetKeyDown(KeyCode.H) == true && !cubeMoves) //Turn the whole cube horizontal
-            {
-                pushedL = false; pushedR = false; pushedF = false; pushedB = false; pushedD = false; pushedM = false; pushedU = false; pushedH = true; pushedV = false; pushedC = false;
-            }
-            if (Input.GetKeyDown(KeyCode.V) == true && !cubeMoves) //Turn the whole cube vertical
-            {
-                pushedL = false; pushedR = false; pushedF = false; pushedB = false; pushedD = false; pushedM = false; pushedU = false; pushedH = false; pushedV = true; pushedC = false;
-            }
-           
-
-            // Which arrow ------------------------------------------------------------------------------------------------------
-            if (Input.GetKeyDown(KeyCode.UpArrow) == true && !cubeMoves) //Left side, arrow up, X
-            {
-                pushedUp = true; pushedDown = false; pushedRight = false; pushedLeft = false;
-            }
-            if (Input.GetKeyDown(KeyCode.DownArrow) == true && !cubeMoves) //Left side, arrow down, X
-            {
-                pushedUp = false; pushedDown = true; pushedRight = false; pushedLeft = false;
-            }
-            if (Input.GetKeyDown(KeyCode.LeftArrow) == true && !cubeMoves) //Up side, arrow Left, Y
-            {
-                pushedUp = false; pushedDown = false; pushedRight = false; pushedLeft = true;
-            }
-            if (Input.GetKeyDown(KeyCode.RightArrow) == true && !cubeMoves) //Up side, arrow right, Y
-            {
-                pushedUp = false; pushedDown = false; pushedRight = true; pushedLeft = false;
-            }
-            
-            
-            // Which side and which arrow ---------------------------------------------------------------------------------------------
-            //LEFT OR RIGHT SIDE
-            if (pushedL && pushedUp) //Left side, arrow up, X
-            {
-                sides[0] = down1; sides[1] = right1; sides[2] = up1; sides[3] = left1; sides[4] = front1; sides[5] = back1;
-                rotate9Cubes(sides, 0, 3, 0, 3, 0, 1, -angleStep, 0, 0, out pushedL, out pushedUp, 8);
-            }
-            if (pushedL && pushedDown) //Left side, arrow down, X
-            {
-                //rotate9Cubes(0, 3, 0, 3, 0, 1, angleStep, 0, 0, out pushedL, out pushedDown, 7);
-            }
-            if (pushedC && pushedUp) //center vertical, arrow up, X
-            {
-                sides[0] = down1; sides[1] = right1; sides[2] = up1; sides[3] = left1; sides[4] = front1; sides[5] = back1;
-                rotate9Cubes(sides, 0, 3, 0, 3, 1, 2, -angleStep, 0, 0, out pushedC, out pushedUp, 14);
-            }
-            if (pushedC && pushedDown) // center vertical side, arrow down, X
-            {
-                //rotate9Cubes(0, 3, 0, 3, 2, 3, angleStep, 0, 0, out pushedR, out pushedDown, 5);
-            }
-            if (pushedR && pushedUp) //Right side, arrow up, X
-            {
-                sides[0] = down1; sides[1] = right1; sides[2] = up1; sides[3] = left1; sides[4] = front1; sides[5] = back1;
-                rotate9Cubes(sides, 0, 3, 0, 3, 2, 3, -angleStep, 0, 0, out pushedR, out pushedUp, 6);
-            }
-            if (pushedR && pushedDown) // Right side, arrow down, X
-            {
-                //rotate9Cubes(0, 3, 0, 3, 2, 3, angleStep, 0, 0, out pushedR, out pushedDown, 5);
-            }
-            //UP OR DOWN SIDE
-            if (pushedU && pushedLeft) //Up side, arrow Left, Y
-            {
-                //rotate9Cubes(2, 3, 0, 3, 0, 3, 0, angleStep, 0, out pushedU, out pushedLeft, 4);
-            }
-            if (pushedU && pushedRight) //Up side, arrow right, Y
-            {
-                //rotate9Cubes(2, 3, 0, 3, 0, 3, 0, -angleStep, 0, out pushedU, out pushedRight, 3);
-            }
-            if (pushedM && pushedLeft) //Down side, arrow left, Y
-            {
-                //rotate9Cubes(1, 2, 0, 3, 0, 3, 0, angleStep, 0, out pushedM, out pushedLeft, 12);
-            }
-            if (pushedM && pushedRight) // Down side, arrow right, Y
-            {
-                //rotate9Cubes(1, 2, 0, 3, 0, 3, 0, -angleStep, 0, out pushedM, out pushedRight, 11);
-            }
-            if (pushedD && pushedLeft) //Down side, arrow left, Y
-            {
-                //rotate9Cubes(0, 1, 0, 3, 0, 3, 0, angleStep, 0, out pushedD, out pushedLeft, 2);
-            }
-            if (pushedD && pushedRight) // Down side, arrow right, Y
-            {
-                //rotate9Cubes(0, 1, 0, 3, 0, 3, 0, -angleStep, 0, out pushedD, out pushedRight, 1);
-            }
-            //FRONT OR BACK SIDE
-            if (pushedF && pushedLeft) //Front side, arrow left, Z
-            {
-                //rotate9Cubes(0, 3, 0, 1, 0, 3, 0, 0, -angleStep, out pushedF, out pushedLeft, 10);
-            }
-            if (pushedF && pushedRight) //Front side, arrow right, Z
-            {
-                //rotate9Cubes(0, 3, 0, 1, 0, 3, 0, 0, angleStep, out pushedF, out pushedRight, 9);
-            }
-            if (pushedB && pushedLeft) //Back side, arrow left, Z
-            {
-                pushedB = false;    // I do not handle
-            }
-            if (pushedB && pushedRight) // Back side, arrow right, Z
-            {
-                pushedB = false;    // I do not handle
-            }
-            if (pushedH) // rotate the whole cube
-            {
-                //rotate27CubesH();
-            }
-            if (pushedV) // rotate the whole cube
-            {
-                //rotate27CubesV();
-            }
+            //rotate27CubesH();
         }
-    }
+        if (pressedV) // rotate the whole cube
+        {
+            //rotate27CubesV();
+        }
+        // 2. Method: With mouse drag and rotate
+        DetectObjectWithRaycast();
 
+    } // End of Update
+    void WhichLetterPressed()
+    {
+        pressedL = LetterPressed(KeyCode.L, pressedL); // iF keyCode pressed bool true otherwise nothing changes - LEFT SIDE
+        pressedX = LetterPressed(KeyCode.X, pressedX); // iF keyCode pressed bool true otherwise nothing changes - MIDDLE SIDE between LEFT AND RIGHT
+        pressedR = LetterPressed(KeyCode.R, pressedR); // iF keyCode pressed bool true otherwise nothing changes - RIGHT SIDE
+        pressedF = LetterPressed(KeyCode.F, pressedF); // iF keyCode pressed bool true otherwise nothing changes - FRONT SIDE
+        pressedZ = LetterPressed(KeyCode.Z, pressedZ); // iF keyCode pressed bool true otherwise nothing changes - MIDDLE SIDE between FRONT AND BACK
+        pressedB = LetterPressed(KeyCode.B, pressedB); // iF keyCode pressed bool true otherwise nothing changes - BACK SIDE
+        pressedD = LetterPressed(KeyCode.D, pressedD); // iF keyCode pressed bool true otherwise nothing changes - DOWN SIDE
+        pressedY = LetterPressed(KeyCode.Y, pressedY); // iF keyCode pressed bool true otherwise nothing changes - MIDDLE SIDE between UP AND DOWN
+        pressedU = LetterPressed(KeyCode.U, pressedU); // iF keyCode pressed bool true otherwise nothing changes - UP SIDE
+        pressedH = LetterPressed(KeyCode.H, pressedH); // iF keyCode pressed bool true otherwise nothing changes
+        pressedV = LetterPressed(KeyCode.V, pressedV); // iF keyCode pressed bool true otherwise nothing changes
+    } //End of WhichLetterPressed
+    bool LetterPressed(KeyCode letter, bool LetterPressed) // certain letter pressed? The output is LetterPressed bool
+    {
+        if (Input.GetKeyDown(letter) == true && !cubeMoves)
+        {
+            // base state everything is false
+            pressedL = false; pressedR = false; pressedF = false; pressedB = false; pressedD = false; pressedY = false; pressedU = false; pressedH = false; pressedV = false; pressedX = false; pressedZ = false;
+            return true; //LetterPressed bool changed
+        }
+        else
+            return LetterPressed; // did not change
+    } //End of LetterPressed
+    void WhichArrowKeyPressed()
+    {
+        pressedUpArrow = ArrowKeyPressed(KeyCode.UpArrow, pressedUpArrow);
+        pressedDownArrow = ArrowKeyPressed(KeyCode.DownArrow, pressedDownArrow);
+        pressedLeftArrow = ArrowKeyPressed(KeyCode.LeftArrow, pressedLeftArrow);
+        pressedRightArrow = ArrowKeyPressed(KeyCode.RightArrow, pressedRightArrow);
+
+    } // End of WhichArrowKeyPressed
+    bool ArrowKeyPressed(KeyCode arrowKey, bool arrowKeyPressed) // certain arrowKey pressed? The output is arrowKeyPressed bool
+    {
+        if (Input.GetKeyDown(arrowKey) == true && !cubeMoves)
+        {
+            pressedUpArrow = false; pressedDownArrow = false; pressedRightArrow = false; pressedLeftArrow = false;
+            return true; // arrowKeyPressed bool changed
+        }
+        else
+            return arrowKeyPressed; // did not change
+    } //End of ArrowKeyPressed
+
+    void Rotate9MiniCubesAxisX()
+    {
+        if (pressedL && pressedUpArrow) //Left side, arrow up, X
+        {
+            sides[0] = down1; sides[1] = right1; sides[2] = up1; sides[3] = left1; sides[4] = front1; sides[5] = back1; // defines the order after rotate
+            rotate9Cubes(sides, 0, 3, 0, 3, 0, 1, -angleStep, 0, 0, out pressedL, out pressedUpArrow, 8);
+        }
+        if (pressedL && pressedDownArrow) //Left side, arrow down, X
+        {
+            sides[0] = up1; sides[1] = right1; sides[2] = down1; sides[3] = left1; sides[4] = back1; sides[5] = front1; // defines the order after rotate
+            rotate9Cubes(sides, 0, 3, 0, 3, 0, 1, angleStep, 0, 0, out pressedL, out pressedDownArrow, 7);
+        }
+        if (pressedX && pressedUpArrow) //Middle X layer between Left and Right side, arrow up, X
+        {
+            sides[0] = down1; sides[1] = right1; sides[2] = up1; sides[3] = left1; sides[4] = front1; sides[5] = back1; // defines the order after rotate
+            rotate9Cubes(sides, 0, 3, 0, 3, 1, 2, -angleStep, 0, 0, out pressedX, out pressedUpArrow, 14);
+        }
+        if (pressedX && pressedDownArrow) //Middle X layer between Left and Right side, arrow down, X
+        {
+            sides[0] = up1; sides[1] = right1; sides[2] = down1; sides[3] = left1; sides[4] = back1; sides[5] = front1; // defines the order after rotate
+            rotate9Cubes(sides, 0, 3, 0, 3, 1, 2, angleStep, 0, 0, out pressedX, out pressedDownArrow, 13);
+        }
+        if (pressedR && pressedUpArrow) //Right side, arrow up, X
+        {
+            sides[0] = down1; sides[1] = right1; sides[2] = up1; sides[3] = left1; sides[4] = front1; sides[5] = back1; // defines the order after rotate
+            rotate9Cubes(sides, 0, 3, 0, 3, 2, 3, -angleStep, 0, 0, out pressedR, out pressedUpArrow, 6);
+        }
+        if (pressedR && pressedDownArrow) // Right side, arrow down, X
+        {
+            sides[0] = up1; sides[1] = right1; sides[2] = down1; sides[3] = left1; sides[4] = back1; sides[5] = front1; // defines the order after rotate
+            rotate9Cubes(sides, 0, 3, 0, 3, 2, 3, angleStep, 0, 0, out pressedR, out pressedDownArrow, 5);
+        }
+
+    } // End of Rotate9MiniCubesAxisX
+    void Rotate9MiniCubesAxisY()
+    {
+        if (pressedU && pressedLeftArrow) //Up side, arrow Left, Y
+        {
+            sides[0] = right1; sides[1] = back1; sides[2] = left1; sides[3] = front1; sides[4] = up1; sides[5] = down1; // defines the order after rotate
+            rotate9Cubes(sides, 2, 3, 0, 3, 0, 3, 0, angleStep, 0, out pressedU, out pressedLeftArrow, 4);
+        }
+        if (pressedU && pressedRightArrow) //Up side, arrow right, Y
+        {
+            sides[0] = left1; sides[1] = front1; sides[2] = right1; sides[3] = back1; sides[4] = up1; sides[5] = down1; // defines the order after rotate
+            rotate9Cubes(sides, 2, 3, 0, 3, 0, 3, 0, -angleStep, 0, out pressedU, out pressedRightArrow, 3);
+        }
+        if (pressedY && pressedLeftArrow) //Middle Y layer between Up and Down side, arrow left, Y
+        {
+            sides[0] = right1; sides[1] = back1; sides[2] = left1; sides[3] = front1; sides[4] = up1; sides[5] = down1; // defines the order after rotate
+            rotate9Cubes(sides, 1, 2, 0, 3, 0, 3, 0, angleStep, 0, out pressedY, out pressedLeftArrow, 12);
+        }
+        if (pressedY && pressedRightArrow) // Middle Y layer between Up and Down side, arrow right, Y
+        {
+            sides[0] = left1; sides[1] = front1; sides[2] = right1; sides[3] = back1; sides[4] = up1; sides[5] = down1; // defines the order after rotate
+            rotate9Cubes(sides, 1, 2, 0, 3, 0, 3, 0, -angleStep, 0, out pressedY, out pressedRightArrow, 11);
+        }
+        if (pressedD && pressedLeftArrow) //Down side, arrow left, Y
+        {
+            sides[0] = right1; sides[1] = back1; sides[2] = left1; sides[3] = front1; sides[4] = up1; sides[5] = down1; // defines the order after rotate
+            rotate9Cubes(sides, 0, 1, 0, 3, 0, 3, 0, angleStep, 0, out pressedD, out pressedLeftArrow, 2);
+        }
+        if (pressedD && pressedRightArrow) // Down side, arrow right, Y
+        {
+            sides[0] = left1; sides[1] = front1; sides[2] = right1; sides[3] = back1; sides[4] = up1; sides[5] = down1; // defines the order after rotate
+            rotate9Cubes(sides, 0, 1, 0, 3, 0, 3, 0, -angleStep, 0, out pressedD, out pressedRightArrow, 1);
+        }
+
+    } // End of Rotate9MiniCubesAxisY
+    void Rotate9MiniCubesAxisZ()
+    {
+        if (pressedF && pressedLeftArrow) //Front side, arrow left, Z
+        {
+            rotate9Cubes(sides, 0, 3, 0, 1, 0, 3, 0, 0, -angleStep, out pressedF, out pressedLeftArrow, 10);
+        }
+        if (pressedF && pressedRightArrow) //Front side, arrow right, Z
+        {
+            rotate9Cubes(sides, 0, 3, 0, 1, 0, 3, 0, 0, angleStep, out pressedF, out pressedRightArrow, 9);
+        }
+        if (pressedZ && pressedLeftArrow) // Middle Z layer between Front and Back side, arrow Left, Z
+        {
+            pressedZ = false;    // I do not handle
+        }
+        if (pressedZ && pressedRightArrow) // Middle Z layer between Front and Back side, arrow right, Z
+        {
+            pressedZ = false;    // I do not handle
+        }
+        if (pressedB && pressedLeftArrow) //Back side, arrow left, Z
+        {
+            pressedB = false;    // I do not handle
+        }
+        if (pressedB && pressedRightArrow) // Back side, arrow right, Z
+        {
+            pressedB = false;    // I do not handle
+        }
+
+    } // End of Rotate9MiniCubesAxisZ
     void rotate27CubesH()
     {
         cubeMoves = true;
-        pushedH = true;
+        pressedH = true;
         if (timer < moveRate) // rotate
         {
             timer = timer + Time.deltaTime;
@@ -297,7 +321,7 @@ public class CubeScript : MonoBehaviour
                 }
                 order9cubes(3);
                 cubeMoves = false;
-                pushedH = false;
+                pressedH = false;
             }
             timer = 0;
         }
@@ -305,7 +329,7 @@ public class CubeScript : MonoBehaviour
     void rotate27CubesV()
     {
         cubeMoves = true;
-        pushedV = true;
+        pressedV = true;
         if (timer < moveRate) // rotate
         {
             timer = timer + Time.deltaTime;
@@ -354,7 +378,7 @@ public class CubeScript : MonoBehaviour
                 }
                 order9cubes(5);
                 cubeMoves = false;
-                pushedV = false;
+                pressedV = false;
             }
             timer = 0;
         }
@@ -827,11 +851,11 @@ public class CubeScript : MonoBehaviour
                 //Debug.Log(hit.collider.transform.parent.childCount);
                 //Debug.Log(hitTransform.GetSiblingIndex());
                 Debug.Log("kint");
-                if (hitTransform.GetSiblingIndex() == 0) 
+                if (hitTransform.GetSiblingIndex() == 0)
                     mousetouched = "Front";
-                else if (hitTransform.GetSiblingIndex() == 1) 
+                else if (hitTransform.GetSiblingIndex() == 1)
                     mousetouched = "Right";
-                else 
+                else
                     mousetouched = "Up";
                 for (int i = 0; i < 3; i++) // search mini cube amoung the 27 cube objects
                 {
@@ -842,9 +866,9 @@ public class CubeScript : MonoBehaviour
                             Debug.Log("tn:" + miniCubes[i, j, k].transform.name + " tpn: " + hitTransform.parent.name);
                             if (miniCubes[i, j, k].transform.name == hitTransform.parent.name)
                             {
-                                whichCubeClickedMouseIindex = i;
-                                whichCubeClickedMouseJindex = j;
-                                whichCubeClickedMouseKindex = k;
+                                whichCubeClickedMouse_I_index = i;
+                                whichCubeClickedMouse_J_index = j;
+                                whichCubeClickedMouse_K_index = k;
                                 //Debug.Log("                                                           tn:"+ miniCubes[i, j, k].transform.name+" "+i + " " + j + " " + k+"tpn: "+ hitTransform.parent.name) ;
                             }
                         }
@@ -852,71 +876,6 @@ public class CubeScript : MonoBehaviour
                 }
             }
         }
-        //Debug.Log("Down: " + Input.mousePosition);
-        //if (hit.collider.name == "UpRight" && !cubeMoves)
-        //{
-        //    rotate9Cubes(2, 3, 0, 3, 0, 3, 0, -angleStep, 0, out pushedU, out pushedRight, 3);
-        //}
-        //if (hit.collider.name == "UpLeft" && !cubeMoves)
-        //{
-        //    rotate9Cubes(2, 3, 0, 3, 0, 3, 0, angleStep, 0, out pushedU, out pushedLeft, 4);
-        //}
-        //if (hit.collider.name == "MiddleRight" && !cubeMoves)
-        //{
-        //    rotate9Cubes(1, 2, 0, 3, 0, 3, 0, -angleStep, 0, out pushedM, out pushedRight, 11);
-        //}
-        //if (hit.collider.name == "MiddleLeft" && !cubeMoves)
-        //{
-        //    rotate9Cubes(1, 2, 0, 3, 0, 3, 0, angleStep, 0, out pushedM, out pushedLeft, 12);
-        //}
-        //if (hit.collider.name == "DownRight" && !cubeMoves)
-        //{
-        //    rotate9Cubes(0, 1, 0, 3, 0, 3, 0, -angleStep, 0, out pushedD, out pushedRight, 1);
-        //}
-        //if (hit.collider.name == "DownLeft" && !cubeMoves)
-        //{
-        //    rotate9Cubes(0, 1, 0, 3, 0, 3, 0, angleStep, 0, out pushedD, out pushedLeft, 2);
-        //}
-        //if (hit.collider.name == "LeftDown" && !cubeMoves)
-        //{
-        //    rotate9Cubes(0, 3, 0, 3, 0, 1, 0, angleStep, 0, out pushedL, out pushedDown, 7);
-        //}
-        //if (hit.collider.name == "LeftUp" && !cubeMoves)
-        //{
-        //    rotate9Cubes(0, 3, 0, 3, 0, 1, 0, -angleStep, 0, out pushedL, out pushedUp, 8);
-        //}
-        //if (hit.collider.name == "RightDown" && !cubeMoves)
-        //{
-        //    rotate9Cubes(0, 3, 0, 3, 2, 3, 0, angleStep, 0, out pushedR, out pushedDown, 5);
-        //}
-        //if (hit.collider.name == "RightUp" && !cubeMoves)
-        //{
-        //    rotate9Cubes(0, 3, 0, 3, 2, 3, 0, -angleStep, 0, out pushedR, out pushedUp, 6);
-        //}
-        //if (hit.collider.name == "FrontC" && !cubeMoves)
-        //{
-        //    rotate9Cubes(0, 3, 0, 1, 0, 3, 0, 0, angleStep, out pushedF, out pushedRight, 9);
-        //}
-        //if (hit.collider.name == "FrontCC" && !cubeMoves)
-        //{
-        //    rotate9Cubes(0, 3, 0, 1, 0, 3, 0, 0, -angleStep, out pushedF, out pushedLeft, 10);
-        //}
-        //if (hit.collider.name == "HorizontalCC" && !cubeMoves)
-        //{
-        //    horisontalClockwise = false;
-        //    rotate27CubesH();
-        //}
-        //if (hit.collider.name == "HorizontalC" && !cubeMoves)
-        //{
-        //    horisontalClockwise = true;
-        //    rotate27CubesH();
-        //}
-        //if (hit.collider.name == "VerticalCC" && !cubeMoves)
-        //{
-        //    rotate27CubesV();
-        //}
-        //    }
-        //}
         if (Input.GetMouseButtonUp(0)) // mouse left button released
         {
             mouseDirection = GetRotationDirection(); // X or Y or Z plus or minus
@@ -924,47 +883,24 @@ public class CubeScript : MonoBehaviour
             {
                 Debug.Log(mousetouched);
                 Debug.Log(mouseDirection);
-                Debug.Log(whichCubeClickedMouseKindex);
+                Debug.Log(whichCubeClickedMouse_K_index);
                 if (mousetouched == "Front") // mouse pushed the Front side of the cube - 
                 {
                     if (mouseDirection == "YPlus") //Left middle or Right side rotatates clockwise
                     {
-                        switch (whichCubeClickedMouseKindex)
-                        {
-                            case 0:
-                                sides[0] = down1; sides[1] = right1; sides[2] = up1; sides[3] = left1; sides[4] = front1; sides[5] = back1;
-                                rotate9Cubes(sides, 0, 3, 0, 3, 0, 1, 0, -angleStep, 0, out pushedL, out pushedUp, 8);
-                                break;
-                            case 1:
-                                sides[0] = down1; sides[1] = right1; sides[2] = up1; sides[3] = left1; sides[4] = front1; sides[5] = back1;
-                                rotate9Cubes(sides, 0, 3, 0, 3, 1, 2, -angleStep, 0, 0, out pushedC, out pushedUp, 14);
-                                break;
-                            case 2:
-                                sides[0] = down1; sides[1] = right1; sides[2] = up1; sides[3] = left1; sides[4] = front1; sides[5] = back1;
-                                rotate9Cubes(sides, 0, 3, 0, 3, 2, 3, 0, -angleStep, 0, out pushedR, out pushedUp, 6);
-                                break;
-                        }
+                        rotateCounterClockwiseAxisX(whichCubeClickedMouse_K_index); // rotate Left or rigtht or between them layer Axis X
                     }
                     else if (mouseDirection == "YMinus") //Left middle or Right side rotatates counter clockwise
                     {
-                        switch (whichCubeClickedMouseKindex)
-                        {
-                            case 0:
-                                //rotate9Cubes(0, 3, 0, 3, 0, 1, 0, angleStep, 0, out pushedL, out pushedDown, 7);
-                                break;
-                            case 1:
-                                break;
-                            case 2:
-                                //rotate9Cubes(0, 3, 0, 3, 2, 3, 0, angleStep, 0, out pushedR, out pushedDown, 5);
-                                break;
-                        }
+                        rotateClockwiseAxisX(whichCubeClickedMouse_K_index);
                     }
                     else if (mouseDirection == "XPlus") // Up or Middle or Down level rotates counter clockwise
                     {
-
+                        rotateCounterClockwiseAxisY(whichCubeClickedMouse_I_index);
                     }
                     else if (mouseDirection == "XMinus")// Up or Middle or Down level rotates clockwise
                     {
+                        rotateClockwiseAxisY(whichCubeClickedMouse_I_index);
 
                     }
                 }
@@ -984,7 +920,80 @@ public class CubeScript : MonoBehaviour
 
         }
 
-    }
+    } // End of DetectObjectWithRaycast
+    void rotateCounterClockwiseAxisX(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                sides[0] = down1; sides[1] = right1; sides[2] = up1; sides[3] = left1; sides[4] = front1; sides[5] = back1;
+                rotate9Cubes(sides, 0, 3, 0, 3, 0, 1, -angleStep, 0, 0, out pressedL, out pressedUpArrow, 8);
+                break;
+            case 1:
+                sides[0] = down1; sides[1] = right1; sides[2] = up1; sides[3] = left1; sides[4] = front1; sides[5] = back1;
+                rotate9Cubes(sides, 0, 3, 0, 3, 1, 2, -angleStep, 0, 0, out pressedX, out pressedUpArrow, 14);
+                break;
+            case 2:
+                sides[0] = down1; sides[1] = right1; sides[2] = up1; sides[3] = left1; sides[4] = front1; sides[5] = back1;
+                rotate9Cubes(sides, 0, 3, 0, 3, 2, 3, -angleStep, 0, 0, out pressedR, out pressedUpArrow, 6);
+                break;
+        }
+    } // End of rotateCounterClockwiseAxisX
+    void rotateClockwiseAxisX(int index)
+    {
+        switch (whichCubeClickedMouse_K_index)
+        {
+            case 0:
+                sides[0] = up1; sides[1] = right1; sides[2] = down1; sides[3] = left1; sides[4] = back1; sides[5] = front1;
+                rotate9Cubes(sides, 0, 3, 0, 3, 0, 1, angleStep, 0, 0, out pressedL, out pressedDownArrow, 7);
+                break;
+            case 1:
+                sides[0] = up1; sides[1] = right1; sides[2] = down1; sides[3] = left1; sides[4] = back1; sides[5] = front1;
+                rotate9Cubes(sides, 0, 3, 0, 3, 1, 2, angleStep, 0, 0, out pressedX, out pressedDownArrow, 13);
+                break;
+            case 2:
+                sides[0] = up1; sides[1] = right1; sides[2] = down1; sides[3] = left1; sides[4] = back1; sides[5] = front1;
+                rotate9Cubes(sides, 0, 3, 0, 3, 2, 3, angleStep, 0, 0, out pressedR, out pressedDownArrow, 5);
+                break;
+        }
+    } // End of rotateClockwiseAxisX
+    void rotateCounterClockwiseAxisY(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                sides[0] = left1; sides[1] = front1; sides[2] = right1; sides[3] = back1; sides[4] = up1; sides[5] = down1; // defines the order after rotate
+                rotate9Cubes(sides, 0, 1, 0, 3, 0, 3, 0, -angleStep, 0, out pressedD, out pressedRightArrow, 1);
+                break;
+            case 1:
+                sides[0] = left1; sides[1] = front1; sides[2] = right1; sides[3] = back1; sides[4] = up1; sides[5] = down1; // defines the order after rotate
+                rotate9Cubes(sides, 1, 2, 0, 3, 0, 3, 0, -angleStep, 0, out pressedY, out pressedRightArrow, 11);
+                break;
+            case 2:
+                sides[0] = left1; sides[1] = front1; sides[2] = right1; sides[3] = back1; sides[4] = up1; sides[5] = down1; // defines the order after rotate
+                rotate9Cubes(sides, 2, 3, 0, 3, 0, 3, 0, -angleStep, 0, out pressedU, out pressedRightArrow, 3);
+                break;
+        }
+    } // End of rotateCounterClockwiseAxisY
+    void rotateClockwiseAxisY(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                sides[0] = right1; sides[1] = back1; sides[2] = left1; sides[3] = front1; sides[4] = up1; sides[5] = down1; // defines the order after rotate
+                rotate9Cubes(sides, 0, 1, 0, 3, 0, 3, 0, angleStep, 0, out pressedD, out pressedLeftArrow, 2);
+                break;
+            case 1:
+                sides[0] = right1; sides[1] = back1; sides[2] = left1; sides[3] = front1; sides[4] = up1; sides[5] = down1; // defines the order after rotate
+                rotate9Cubes(sides, 1, 2, 0, 3, 0, 3, 0, angleStep, 0, out pressedY, out pressedLeftArrow, 12);
+                break;
+            case 2:
+                sides[0] = right1; sides[1] = back1; sides[2] = left1; sides[3] = front1; sides[4] = up1; sides[5] = down1; // defines the order after rotate
+                rotate9Cubes(sides, 2, 3, 0, 3, 0, 3, 0, angleStep, 0, out pressedU, out pressedLeftArrow, 4);
+                break;
+        }
+    } // End of rotateClockwiseAxisY
+
     void rotate9x6Quad(int[] sides, int iFrom, int iTo, int jFrom, int jTo, int kFrom, int kTo)
     {
         for (int i = iFrom; i < iTo; i++)
