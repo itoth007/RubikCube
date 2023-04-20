@@ -22,7 +22,7 @@ public class CubeScript : MonoBehaviour
     private float currentAngle = 0;
     bool pressedL = false; // L: Left side of the cube
     bool pressedR = false; // R: Right side of the cube
-    bool pressedX = false; // X: X Middle layer vbetween Left and Right
+    bool pressedX = false; // X: X Middle layer between Left and Right
     bool pressedU = false; // U: Up side of the cube
     bool pressedD = false; // D: Down side of the cube
     bool pressedY = false; // Y: Y Middle layer between Up and Down
@@ -238,27 +238,33 @@ public class CubeScript : MonoBehaviour
     {
         if (pressedF && pressedLeftArrow) //Front side, arrow left, Z
         {
+            sides[0] = front1; sides[1] = up1; sides[2] = back1; sides[3] = down1; sides[4] = left1; sides[5] = right1; // defines the order after rotate
             rotate9Cubes(sides, 0, 3, 0, 1, 0, 3, 0, 0, -angleStep, out pressedF, out pressedLeftArrow, 10);
         }
         if (pressedF && pressedRightArrow) //Front side, arrow right, Z
         {
+            sides[0] = front1; sides[1] = down1; sides[2] = back1; sides[3] = up1; sides[4] = right1; sides[5] = left1; // defines the order after rotate
             rotate9Cubes(sides, 0, 3, 0, 1, 0, 3, 0, 0, angleStep, out pressedF, out pressedRightArrow, 9);
         }
         if (pressedZ && pressedLeftArrow) // Middle Z layer between Front and Back side, arrow Left, Z
         {
-            pressedZ = false;    // I do not handle
+            sides[0] = front1; sides[1] = up1; sides[2] = back1; sides[3] = down1; sides[4] = left1; sides[5] = right1; // defines the order after rotate
+            rotate9Cubes(sides, 0, 3, 1, 2, 0, 3, 0, 0, -angleStep, out pressedZ, out pressedLeftArrow, 16);
         }
         if (pressedZ && pressedRightArrow) // Middle Z layer between Front and Back side, arrow right, Z
         {
-            pressedZ = false;    // I do not handle
+            sides[0] = front1; sides[1] = down1; sides[2] = back1; sides[3] = up1; sides[4] = right1; sides[5] = left1; // defines the order after rotate
+            rotate9Cubes(sides, 0, 3, 1, 2, 0, 3, 0, 0, angleStep, out pressedZ, out pressedRightArrow, 15);
         }
         if (pressedB && pressedLeftArrow) //Back side, arrow left, Z
         {
-            pressedB = false;    // I do not handle
+            sides[0] = front1; sides[1] = up1; sides[2] = back1; sides[3] = down1; sides[4] = left1; sides[5] = right1; // defines the order after rotate
+            rotate9Cubes(sides, 0, 3, 2, 3, 0, 3, 0, 0, -angleStep, out pressedB, out pressedLeftArrow, 18);
         }
         if (pressedB && pressedRightArrow) // Back side, arrow right, Z
         {
-            pressedB = false;    // I do not handle
+            sides[0] = front1; sides[1] = down1; sides[2] = back1; sides[3] = up1; sides[4] = right1; sides[5] = left1; // defines the order after rotate
+            rotate9Cubes(sides, 0, 3, 2, 3, 0, 3, 0, 0, angleStep, out pressedB, out pressedRightArrow, 17);
         }
 
     } // End of Rotate9MiniCubesAxisZ
@@ -571,7 +577,7 @@ public class CubeScript : MonoBehaviour
                 movesCube(2, 8);
                 moveColorsZ(down, right, up, left, front, 0, true); //  side1, side2, side3, side4 side5 level direction
                 break;
-            case 10: // Front Left Invers Clock
+            case 10: // Front Left counter Clock
                 movesCube(2, 0);
                 movesCube(11, 1);
                 movesCube(20, 2);
@@ -583,7 +589,7 @@ public class CubeScript : MonoBehaviour
                 movesCube(18, 8);
                 moveColorsZ(down, left, up, right, front, 0, false); //  side1, side2, side3, side4 side5 level direction 
                 break;
-            case 11: // Middle Right
+            case 11: // Y Middle layer between Up and Down arrowRight
                 movesCube(11, 0);
                 movesCube(14, 1);
                 movesCube(17, 2);
@@ -595,7 +601,7 @@ public class CubeScript : MonoBehaviour
                 movesCube(15, 8);
                 moveColorsY(front, left, back, right, down, 1, false); //  side1, side2, side3, side4, side5, level, direction 
                 break;
-            case 12: // Middle Left
+            case 12: // Y Middle layer between Up and Down arrowLeft
                 movesCube(15, 0);
                 movesCube(12, 1);
                 movesCube(9, 2);
@@ -607,7 +613,7 @@ public class CubeScript : MonoBehaviour
                 movesCube(11, 8);
                 moveColorsY(front, right, back, left, down, 1, true); //  side1, side2, side3, side4, side5, level, direction 
                 break;
-            case 13: // Center Down
+            case 13: // X Middle layer between Left and Right arrowDown
                 movesCube(7, 0);
                 movesCube(16, 1);
                 movesCube(25, 2);
@@ -619,7 +625,7 @@ public class CubeScript : MonoBehaviour
                 movesCube(19, 8);
                 moveColorsX(down, front, up, back, right, 1, false); //  side1, side2, side3, side4, side5, level,direction
                 break;
-            case 14: // Center up
+            case 14: // X Middle layer between Left and Right arrowUp
                 movesCube(19, 0);
                 movesCube(10, 1);
                 movesCube(1, 2);
@@ -630,6 +636,54 @@ public class CubeScript : MonoBehaviour
                 movesCube(16, 7);
                 movesCube(7, 8);
                 moveColorsX(down, back, up, front, right, 1, true); //  side1, side2, side3, side4, side5, level,direction
+                break;
+            case 15: // Z Middle between front and back, Right Clock
+                movesCube(21, 0);
+                movesCube(12, 1);
+                movesCube(3, 2);
+                movesCube(22, 3);
+                movesCube(13, 4);
+                movesCube(4, 5);
+                movesCube(23, 6);
+                movesCube(14, 7);
+                movesCube(5, 8);
+                moveColorsZ(down, right, up, left, front, 0, true); //  side1, side2, side3, side4 side5 level direction
+                break;
+            case 16: // Z Middle between front and back, Left counter Clock
+                movesCube(5, 0);
+                movesCube(14, 1);
+                movesCube(23, 2);
+                movesCube(4, 3);
+                movesCube(13, 4);
+                movesCube(22, 5);
+                movesCube(3, 6);
+                movesCube(12, 7);
+                movesCube(21, 8);
+                moveColorsZ(down, left, up, right, front, 0, false); //  side1, side2, side3, side4 side5 level direction 
+                break;
+            case 17: //  back, Right Clock
+                movesCube(24, 0);
+                movesCube(15, 1);
+                movesCube(6, 2);
+                movesCube(25, 3);
+                movesCube(16, 4);
+                movesCube(7, 5);
+                movesCube(26, 6);
+                movesCube(17, 7);
+                movesCube(8, 8);
+                moveColorsZ(down, right, up, left, front, 0, true); //  side1, side2, side3, side4 side5 level direction
+                break;
+            case 18: //  back, Left counter Clock
+                movesCube(8, 0);
+                movesCube(17, 1);
+                movesCube(26, 2);
+                movesCube(7, 3);
+                movesCube(16, 4);
+                movesCube(25, 5);
+                movesCube(6, 6);
+                movesCube(15, 7);
+                movesCube(24, 8);
+                moveColorsZ(down, left, up, right, front, 0, false); //  side1, side2, side3, side4 side5 level direction 
                 break;
         }
     }
@@ -863,7 +917,7 @@ public class CubeScript : MonoBehaviour
                     {
                         for (int k = 0; k < 3; k++)
                         {
-                            Debug.Log("tn:" + miniCubes[i, j, k].transform.name + " tpn: " + hitTransform.parent.name);
+             //               Debug.Log("tn:" + miniCubes[i, j, k].transform.name + " tpn: " + hitTransform.parent.name);
                             if (miniCubes[i, j, k].transform.name == hitTransform.parent.name)
                             {
                                 whichCubeClickedMouse_I_index = i;
@@ -879,47 +933,51 @@ public class CubeScript : MonoBehaviour
         if (Input.GetMouseButtonUp(0)) // mouse left button released
         {
             mouseDirection = GetRotationDirection(); // X or Y or Z plus or minus
-            if (!cubeMoves)
+            if (!cubeMoves && hitTransform.parent.parent.name == "RubikCube")
             {
                 Debug.Log(mousetouched);
                 Debug.Log(mouseDirection);
-                Debug.Log(whichCubeClickedMouse_K_index);
+                Debug.Log("indexek:                                " + whichCubeClickedMouse_I_index+" " + whichCubeClickedMouse_J_index+" " + whichCubeClickedMouse_K_index);
                 if (mousetouched == "Front") // mouse pushed the Front side of the cube - 
                 {
-                    if (mouseDirection == "YPlus") //Left middle or Right side rotatates clockwise
+                    if (mouseDirection == "YPlus") //Left, middle or Right side rotatates counter clockwise
                     {
-                        rotateCounterClockwiseAxisX(whichCubeClickedMouse_K_index); // rotate Left or rigtht or between them layer Axis X
+                        rotateCounterClockwiseAxisX(whichCubeClickedMouse_K_index); 
                     }
-                    else if (mouseDirection == "YMinus") //Left middle or Right side rotatates counter clockwise
+                    else if (mouseDirection == "YMinus") //Left, middle or Right side rotatates clockwise
                     {
                         rotateClockwiseAxisX(whichCubeClickedMouse_K_index);
                     }
-                    else if (mouseDirection == "XPlus") // Up or Middle or Down level rotates counter clockwise
+                    else if (mouseDirection == "XPlus") // Up, Middle or Down level rotates counter clockwise
                     {
                         rotateCounterClockwiseAxisY(whichCubeClickedMouse_I_index);
                     }
-                    else if (mouseDirection == "XMinus")// Up or Middle or Down level rotates clockwise
+                    else if (mouseDirection == "XMinus")// Up, Middle or Down level rotates clockwise
                     {
                         rotateClockwiseAxisY(whichCubeClickedMouse_I_index);
-
+                    }
+                }
+                if (mousetouched == "Right") // mouse pushed the Right side of the cube - 
+                {
+                    if (mouseDirection == "YPlus") //Front, middle or Back side rotatates counter clockwise
+                    {
+                        rotateCounterClockwiseAxisZ(whichCubeClickedMouse_J_index);
+                    }
+                    else if (mouseDirection == "YMinus") //Front, middle or Back side rotatates clockwise
+                    {
+                        rotateClockwiseAxisZ(whichCubeClickedMouse_J_index);
+                    }
+                    else if (mouseDirection == "ZPlus") // Up, Middle or Down level rotates counter clockwise
+                    {
+                        rotateCounterClockwiseAxisY(whichCubeClickedMouse_I_index);
+                    }
+                    else if (mouseDirection == "ZMinus")// Up, Middle or Down level rotates clockwise
+                    {
+                        rotateClockwiseAxisY(whichCubeClickedMouse_I_index);
                     }
                 }
             }
-
-            //hit.collider.transform.SetSiblingIndex(1);
-            //Debug.Log(hit.collider.transform.GetSiblingIndex());
-
-            //if (hitTransform.GetSiblingIndex() == 0)
-            //{
-            //    rotate9Cubes(2, 3, 0, 3, 0, 3, 0, -angleStep, 0, out pushedU, out pushedRight, 3);
-            //}
-            //if (hitTransform.GetSiblingIndex() == 4)
-            //{
-            //    rotate9Cubes(0, 3, 0, 1, 0, 3, 0, 0, -angleStep, out pushedF, out pushedLeft, 10);
-            //}
-
         }
-
     } // End of DetectObjectWithRaycast
     void rotateCounterClockwiseAxisX(int index)
     {
@@ -993,6 +1051,50 @@ public class CubeScript : MonoBehaviour
                 break;
         }
     } // End of rotateClockwiseAxisY
+    void rotateCounterClockwiseAxisZ(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                sides[0] = front1; sides[1] = down1; sides[2] = back1; sides[3] = up1; sides[4] = right1; sides[5] = left1; // defines the order after rotate
+                rotate9Cubes(sides, 0, 3, 0, 1, 0, 3, 0, 0, -angleStep, out pressedF, out pressedLeftArrow, 10);
+                break;
+            case 1:
+                sides[0] = front1; sides[1] = down1; sides[2] = back1; sides[3] = up1; sides[4] = right1; sides[5] = left1; // defines the order after rotate
+                rotate9Cubes(sides, 0, 3, 1, 2, 0, 3, 0, 0, -angleStep, out pressedZ, out pressedLeftArrow, 16);
+                break;
+            case 2:
+                sides[0] = front1; sides[1] = down1; sides[2] = back1; sides[3] = up1; sides[4] = right1; sides[5] = left1; // defines the order after rotate
+                rotate9Cubes(sides, 0, 3, 2, 3, 0, 3, 0, 0, -angleStep, out pressedB, out pressedLeftArrow, 18);
+                break;
+        }
+    } // End of rotateCounterClockwiseAxisZ
+    void rotateClockwiseAxisZ(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                sides[0] = front1; sides[1] = up1; sides[2] = back1; sides[3] = down1; sides[4] = left1; sides[5] = right1; // defines the order after rotate
+                rotate9Cubes(sides, 0, 3, 0, 1, 0, 3, 0, 0, angleStep, out pressedF, out pressedRightArrow, 9);
+                break;
+            case 1:
+                sides[0] = front1; sides[1] = up1; sides[2] = back1; sides[3] = down1; sides[4] = left1; sides[5] = right1; // defines the order after rotate
+                rotate9Cubes(sides, 0, 3, 1, 2, 0, 3, 0, 0, angleStep, out pressedZ, out pressedRightArrow, 15);
+                break;
+            case 2:
+                sides[0] = front1; sides[1] = up1; sides[2] = back1; sides[3] = down1; sides[4] = left1; sides[5] = right1; // defines the order after rotate
+                rotate9Cubes(sides, 0, 3, 2, 3, 0, 3, 0, 0, angleStep, out pressedB, out pressedRightArrow, 17);
+                break;
+        }
+    } // End of rotateClockwiseAxisZ
+    void vala()
+    {
+ 
+        
+        
+        
+        
+    }
 
     void rotate9x6Quad(int[] sides, int iFrom, int iTo, int jFrom, int jTo, int kFrom, int kTo)
     {
@@ -1023,7 +1125,7 @@ public class CubeScript : MonoBehaviour
                 }
             }
         }
-    }
+    } // End of rotate9x6Quad
 
     string GetRotationDirection()
     {
@@ -1050,7 +1152,7 @@ public class CubeScript : MonoBehaviour
             else return "XMinus";
         }
     }
-}
+} // End of GetRotationDirection
 
 //if (i == 0 && j == 0 && k == 0)
 //{
