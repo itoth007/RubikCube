@@ -976,6 +976,25 @@ public class CubeScript : MonoBehaviour
                         rotateClockwiseAxisY(whichCubeClickedMouse_I_index);
                     }
                 }
+                if (mousetouched == "Up") // mouse pushed the Up side of the cube - 
+                {
+                    if (mouseDirection == "ZPlus") //Front, middle or Back side rotatates counter clockwise
+                    {
+                        rotateCounterClockwiseAxisX(whichCubeClickedMouse_K_index);
+                    }
+                    else if (mouseDirection == "ZMinus") //Front, middle or Back side rotatates clockwise
+                    {
+                        rotateClockwiseAxisX(whichCubeClickedMouse_K_index);
+                    }
+                    else if (mouseDirection == "XPlus") // Up, Middle or Down level rotates counter clockwise
+                    {
+                        rotateClockwiseAxisZ(whichCubeClickedMouse_J_index);
+                    }
+                    else if (mouseDirection == "XMinus")// Up, Middle or Down level rotates clockwise
+                    {
+                        rotateCounterClockwiseAxisZ(whichCubeClickedMouse_J_index);
+                    }
+                }
             }
         }
     } // End of DetectObjectWithRaycast
