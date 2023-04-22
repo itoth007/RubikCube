@@ -98,17 +98,10 @@ public class CubeScript : MonoBehaviour
         //FRONT OR BACK or betweenn them the Z MIDDLE LAYER SIDE - axis Z
         Rotate9MiniCubesAxisZ();
 
-        if (pressedH && !wholeCubeRotated)
-        {
-            wholeCubeRotationInProgress = true;
-            rotate27CubesH(true);
-        }
-        if (!pressedH && wholeCubeRotated)
-        {
-            //          Debug.Log("bentttt");
-            rotate27CubesH(false);
-        }
+        //Rotate the whole big Rubik cuve to see non visible sides
+        Rotate27Cubes();
 
+        // 2. Method - with mouse drag and rotate
         DetectObjectWithRaycast();
 
     } // End of Update
@@ -269,8 +262,21 @@ public class CubeScript : MonoBehaviour
         }
 
     } // End of Rotate9MiniCubesAxisZ
-    void rotate27CubesH(bool directiom) // true up, false down
+    void Rotate27Cubes() // true up, false down
     {
+        bool direction;
+        if (pressedH && !wholeCubeRotated)
+        {
+            wholeCubeRotationInProgress = true;
+            direction = true;
+        }
+        else if (!pressedH && wholeCubeRotated)
+        {
+            direction = false;
+        }
+        else
+            return;
+        //    Debug.Log(pressedH + " " + wholeCubeRotated);
         cubeMoves = true;
         if (timer < moveRate) // rotate
         {
@@ -281,51 +287,14 @@ public class CubeScript : MonoBehaviour
             if (Math.Abs(currentAngle) < 180f)
             {
                 currentAngle = currentAngle + angleStep;
-                if (directiom)
-                {
+                if (direction)
                     transform.RotateAround(pivotPoint, Vector3.forward + Vector3.right, angleStep);
-                }
                 else
-                {
                     transform.RotateAround(pivotPoint, Vector3.back + Vector3.left, angleStep);
-                }
             }
             else
             {
                 currentAngle = 0;
-                // iFrom 0, iTo 1, jFrom 0, jTo 3, kFrom 0, kTo 3: Down
-                // iFrom 1, iTo 2, jFrom 0, jTo 3, kFrom 0, kTo 3: Middle
-                // iFrom 2, iTo 3, jFrom 0, jTo 3, kFrom 0, kTo 3: Up
-                int temp = 0;
-                for (int j = 0; j < 3; j++)
-                {
-                    for (int k = 0; k < 3; k++)
-                    {
-                        temporary9Cubes[temp] = miniCubes[0, j, k];
-                        temp++;
-                    }
-                }
-                order9cubes(1);
-                temp = 0;
-                for (int j = 0; j < 3; j++)
-                {
-                    for (int k = 0; k < 3; k++)
-                    {
-                        temporary9Cubes[temp] = miniCubes[1, j, k];
-                        temp++;
-                    }
-                }
-                order9cubes(11);
-                temp = 0;
-                for (int j = 0; j < 3; j++)
-                {
-                    for (int k = 0; k < 3; k++)
-                    {
-                        temporary9Cubes[temp] = miniCubes[2, j, k];
-                        temp++;
-                    }
-                }
-                order9cubes(3);
                 cubeMoves = false;
                 if (pressedH)
                 {
@@ -499,34 +468,39 @@ public class CubeScript : MonoBehaviour
             if (Physics.Raycast(ray, out hit))
             {
                 hitTransform = hit.collider.transform;
-                if (hitTransform.GetSiblingIndex() == 0)
-                    mousetouched = "Front";
-                else if (hitTransform.GetSiblingIndex() == 1)
-                    mousetouched = "Right";
-                else
-                    mousetouched = "Up";
-                for (int i = 0; i < 3; i++) // search mini cube amoung the 27 cube objects
+                Debug.Log(hitTransform.name);
+                if (!cubeMoves && hitTransform.name == "ButtonGameObject")
                 {
-                    for (int j = 0; j < 3; j++)
+                    pressedH = true;
+                    wholeCubeRotated = false;
+                    wholeCubeRotationInProgress = false;    
+                    Rotate27Cubes();
+                }
+                else if (!cubeMoves && hitTransform.parent.parent.name == "RubikCube")
+                {
+                    if (hitTransform.GetSiblingIndex() == 0)
+                        mousetouched = "Front";
+                    else if (hitTransform.GetSiblingIndex() == 1)
+                        mousetouched = "Right";
+                    else
+                        mousetouched = "Up";
+                    for (int i = 0; i < 3; i++) // search mini cube amoung the 27 cube objects
                     {
-                        for (int k = 0; k < 3; k++)
+                        for (int j = 0; j < 3; j++)
                         {
-                            //               Debug.Log("tn:" + miniCubes[i, j, k].transform.name + " tpn: " + hitTransform.parent.name);
-                            if (miniCubes[i, j, k].transform.name == hitTransform.parent.name)
+                            for (int k = 0; k < 3; k++)
                             {
-                                whichCubeClickedMouse_I_index = i;
-                                whichCubeClickedMouse_J_index = j;
-                                whichCubeClickedMouse_K_index = k;
-                                //Debug.Log("                                                           tn:"+ miniCubes[i, j, k].transform.name+" "+i + " " + j + " " + k+"tpn: "+ hitTransform.parent.name) ;
+                                //               Debug.Log("tn:" + miniCubes[i, j, k].transform.name + " tpn: " + hitTransform.parent.name);
+                                if (miniCubes[i, j, k].transform.name == hitTransform.parent.name)
+                                {
+                                    whichCubeClickedMouse_I_index = i;
+                                    whichCubeClickedMouse_J_index = j;
+                                    whichCubeClickedMouse_K_index = k;
+                                    //Debug.Log("                                                           tn:"+ miniCubes[i, j, k].transform.name+" "+i + " " + j + " " + k+"tpn: "+ hitTransform.parent.name) ;
+                                }
                             }
                         }
                     }
-                }
-                Debug.Log(hitTransform.name);
-
-                if (!cubeMoves && hitTransform.name == "Rotate")
-                {
-                    Debug.Log("down");
                 }
 
             }
@@ -536,13 +510,12 @@ public class CubeScript : MonoBehaviour
             if (hitTransform != null)
             {
                 mouseDirection = GetRotationDirection(); // X or Y or Z plus or minus
-                if (!cubeMoves && hitTransform.name == "Rotate")
+                if (!cubeMoves && hitTransform.name == "ButtonGameObject")
                 {
-                    Debug.Log("up");
-
+                    pressedH = false;
+                    Rotate27Cubes();
                 }
-
-                if (!cubeMoves && hitTransform.parent.parent.name == "RubikCube")
+                else if (!cubeMoves && hitTransform.parent.parent.name == "RubikCube")
                 {
                     //Debug.Log(mousetouched);
                     //Debug.Log(mouseDirection);
