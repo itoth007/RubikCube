@@ -56,6 +56,7 @@ public class CubeScript : MonoBehaviour
     Transform hitTransform;
     int[] sides = { 0, 0, 0, 0, 0, 0 };
     bool firstRound = true;
+    bool foundGameobject = false;
 
 
 
@@ -82,7 +83,12 @@ public class CubeScript : MonoBehaviour
         {
             angleStep = 90;
             //Debug.Log(1);
+            MixCube(); // run 3x in each 4 rotation - total 12
             MixCube();
+            MixCube();
+            pressedL = false; pressedR = false; pressedF = false; pressedB = false; pressedD = false; pressedY = false; pressedU = false; pressedH = false; pressedX = false; pressedZ = false;
+            pressedUpArrow = false; pressedDownArrow = false; pressedRightArrow = false; pressedLeftArrow = false;
+            timer = 0;
             firstRound = false;
             angleStep = 3;
         }
@@ -103,16 +109,16 @@ public class CubeScript : MonoBehaviour
             // We know the letter (side/layer - 9 mmini cubes from 27) and the arrow key, then we can rotate
 
             //LEFT OR RIGHT or between them the X MIDDLE LAYER SIDE - axis X
-            Rotate9MiniCubesAxisX();
+            Rotate9MiniCubesAxisX(); //conditions inside
 
             //UP OR DOWN or betweenn them the Y MIDDLE LAYER SIDE - axis Y
-            Rotate9MiniCubesAxisY();
+            Rotate9MiniCubesAxisY();//conditions inside
 
             //FRONT OR BACK or betweenn them the Z MIDDLE LAYER SIDE - axis Z
-            Rotate9MiniCubesAxisZ();
+            Rotate9MiniCubesAxisZ();//conditions inside
 
             //Rotate the whole big Rubik cuve to see non visible sides
-            Rotate27Cubes();
+            Rotate27Cubes();//conditions inside
 
             // 2. Method - with mouse drag and rotate
             DetectObjectWithRaycast();
@@ -177,9 +183,6 @@ public class CubeScript : MonoBehaviour
             sides[0] = up; sides[1] = right; sides[2] = down; sides[3] = left; sides[4] = back; sides[5] = front; // defines the order after rotate
             rotate9Cubes(sides, 0, 3, 0, 3, 1, 2, 90, 0, 0, out pressedX, out pressedDownArrow, 13);
         }
-        pressedL = false; pressedR = false; pressedF = false; pressedB = false; pressedD = false; pressedY = false; pressedU = false; pressedH = false; pressedX = false; pressedZ = false;
-        pressedUpArrow = false; pressedDownArrow = false; pressedRightArrow = false; pressedLeftArrow = false;
-        timer = 0;
     }
     void WhichLetterPressed()
     {
@@ -192,14 +195,14 @@ public class CubeScript : MonoBehaviour
         pressedD = LetterPressed(KeyCode.D, pressedD); // iF keyCode pressed bool true otherwise nothing changes - DOWN SIDE
         pressedY = LetterPressed(KeyCode.Y, pressedY); // iF keyCode pressed bool true otherwise nothing changes - MIDDLE SIDE between UP AND DOWN
         pressedU = LetterPressed(KeyCode.U, pressedU); // iF keyCode pressed bool true otherwise nothing changes - UP SIDE
-        pressedH = LetterPressedAndReleased(KeyCode.H, pressedH); // iF keyCode pressed continously bool true otherwise nothing changes - Whole cube rotate
+        pressedH = LetterPressedAndReleased(KeyCode.H, pressedH); // iF keyCode pressed continously or whole cube rotates then bool true
     } //End of WhichLetterPressed
     bool LetterPressed(KeyCode letter, bool LetterPressed) // certain letter pressed? The output is LetterPressed bool
     {
         if (Input.GetKeyDown(letter) == true && !cubeMoves)
         {
             // base state everything is false
-            pressedL = false; pressedR = false; pressedF = false; pressedB = false; pressedD = false; pressedY = false; pressedU = false; pressedH = false; pressedX = false; pressedZ = false;
+            pressedL = false; pressedR = false; pressedF = false; pressedB = false; pressedD = false; pressedY = false; pressedU = false; pressedX = false; pressedZ = false;
             return true; //LetterPressed bool changed
         }
         else
@@ -210,13 +213,13 @@ public class CubeScript : MonoBehaviour
         if (Input.GetKey(letter) == true)
         {
             // base state everything is false
-            pressedL = false; pressedR = false; pressedF = false; pressedB = false; pressedD = false; pressedY = false; pressedU = false; pressedH = false; pressedX = false; pressedZ = false;
+            pressedL = false; pressedR = false; pressedF = false; pressedB = false; pressedD = false; pressedY = false; pressedU = false; pressedX = false; pressedZ = false;
             return true; //LetterPressed bool changed
         }
         else if (wholeCubeRotationInProgress)
             return true;
         else
-            return false;// LetterPressed; // did not change
+            return false;
     } //End of LetterPressedAndReleased
     void WhichArrowKeyPressed()
     {
@@ -308,32 +311,32 @@ public class CubeScript : MonoBehaviour
     {
         if (pressedF && pressedLeftArrow) //Front side, arrow left, Z
         {
-            sides[0] = front; sides[1] = up; sides[2] = back; sides[3] = down; sides[4] = left; sides[5] = right; // defines the order after rotate
+            sides[0] = front; sides[1] = down; sides[2] = back; sides[3] = up; sides[4] = right; sides[5] = left; // defines the order after rotate
             rotate9Cubes(sides, 0, 3, 0, 1, 0, 3, 0, 0, -angleStep, out pressedF, out pressedLeftArrow, 10);
         }
         if (pressedF && pressedRightArrow) //Front side, arrow right, Z
         {
-            sides[0] = front; sides[1] = down; sides[2] = back; sides[3] = up; sides[4] = right; sides[5] = left; // defines the order after rotate
+            sides[0] = front; sides[1] = up; sides[2] = back; sides[3] = down; sides[4] = left; sides[5] = right; // defines the order after rotate
             rotate9Cubes(sides, 0, 3, 0, 1, 0, 3, 0, 0, angleStep, out pressedF, out pressedRightArrow, 9);
         }
         if (pressedZ && pressedLeftArrow) // Middle Z layer between Front and Back side, arrow Left, Z
         {
-            sides[0] = front; sides[1] = up; sides[2] = back; sides[3] = down; sides[4] = left; sides[5] = right; // defines the order after rotate
+            sides[0] = front; sides[1] = down; sides[2] = back; sides[3] = up; sides[4] = right; sides[5] = left; // defines the order after rotate
             rotate9Cubes(sides, 0, 3, 1, 2, 0, 3, 0, 0, -angleStep, out pressedZ, out pressedLeftArrow, 16);
         }
         if (pressedZ && pressedRightArrow) // Middle Z layer between Front and Back side, arrow right, Z
         {
-            sides[0] = front; sides[1] = down; sides[2] = back; sides[3] = up; sides[4] = right; sides[5] = left; // defines the order after rotate
+            sides[0] = front; sides[1] = up; sides[2] = back; sides[3] = down; sides[4] = left; sides[5] = right; // defines the order after rotate
             rotate9Cubes(sides, 0, 3, 1, 2, 0, 3, 0, 0, angleStep, out pressedZ, out pressedRightArrow, 15);
         }
         if (pressedB && pressedLeftArrow) //Back side, arrow left, Z
         {
-            sides[0] = front; sides[1] = up; sides[2] = back; sides[3] = down; sides[4] = left; sides[5] = right; // defines the order after rotate
+            sides[0] = front; sides[1] = down; sides[2] = back; sides[3] = up; sides[4] = right; sides[5] = left; // defines the order after rotate
             rotate9Cubes(sides, 0, 3, 2, 3, 0, 3, 0, 0, -angleStep, out pressedB, out pressedLeftArrow, 18);
         }
         if (pressedB && pressedRightArrow) // Back side, arrow right, Z
         {
-            sides[0] = front; sides[1] = down; sides[2] = back; sides[3] = up; sides[4] = right; sides[5] = left; // defines the order after rotate
+            sides[0] = front; sides[1] = up; sides[2] = back; sides[3] = down; sides[4] = left; sides[5] = right; // defines the order after rotate
             rotate9Cubes(sides, 0, 3, 2, 3, 0, 3, 0, 0, angleStep, out pressedB, out pressedRightArrow, 17);
         }
 
@@ -360,15 +363,15 @@ public class CubeScript : MonoBehaviour
         }
         else
         {
-            if (Math.Abs(currentAngle) < 180f)
+            currentAngle = currentAngle + angleStep;
+            if (Math.Abs(currentAngle) <= 180f)
             {
-                currentAngle = currentAngle + angleStep;
                 if (direction)
                     transform.RotateAround(pivotPoint, Vector3.forward + Vector3.right, angleStep);
                 else
                     transform.RotateAround(pivotPoint, Vector3.back + Vector3.left, angleStep);
             }
-            else
+            if (Math.Abs(currentAngle) >= 180f)
             {
                 currentAngle = 0;
                 cubeMoves = false;
@@ -414,7 +417,7 @@ public class CubeScript : MonoBehaviour
                         for (int l = 0; l < 6; l++) // six side
                         {
                             miniCubes[i, j, k].transform.GetChild(sides[l] + offset[sides[l]]).SetSiblingIndex(l);
-                            Debug.Log("lap" + miniCubes[i, j, k].transform.GetChild(l));
+                            //Debug.Log("lap" + miniCubes[i, j, k].transform.GetChild(l));
                             for (int m = 0; m < 6; m++)
                             {
                                 if (sides[l] > m)
@@ -546,18 +549,13 @@ public class CubeScript : MonoBehaviour
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit))
             {
+                foundGameobject = true;
                 hitTransform = hit.collider.transform;
                 //Debug.Log(hitTransform.name);
-                if (!cubeMoves && hitTransform.name == "ButtonGameObject")
-                {
-                    pressedH = true;
-                    wholeCubeRotated = false;
-                    wholeCubeRotationInProgress = false;
-                    Rotate27Cubes();
-                }
-                else if (!cubeMoves && hitTransform.parent.parent.name == "RubikCube")
-                {
-                    if (hitTransform.GetSiblingIndex() == 0)
+                if (!cubeMoves && hitTransform.parent.parent != null)
+                    if (hitTransform.parent.parent.name == "RubikCube")
+                    {
+                        if (hitTransform.GetSiblingIndex() == 0)
                         mousetouched = "Front";
                     else if (hitTransform.GetSiblingIndex() == 1)
                         mousetouched = "Right";
@@ -581,82 +579,79 @@ public class CubeScript : MonoBehaviour
                         }
                     }
                 }
-
             }
+            else
+                foundGameobject = false;
         }
         if (Input.GetMouseButtonUp(0)) // mouse left button released
         {
-            if (hitTransform != null)
+            if (foundGameobject)
             {
                 mouseDirection = GetRotationDirection(); // X or Y or Z plus or minus
-                if (!cubeMoves && hitTransform.name == "ButtonGameObject")
-                {
-                    pressedH = false;
-                    Rotate27Cubes();
-                }
-                else if (!cubeMoves && hitTransform.parent.parent.name == "RubikCube")
-                {
-                    //Debug.Log(mousetouched);
-                    //Debug.Log(mouseDirection);
-                    //Debug.Log("indexek:                                " + whichCubeClickedMouse_I_index + " " + whichCubeClickedMouse_J_index + " " + whichCubeClickedMouse_K_index);
-                    if (mousetouched == "Front") // mouse pushed the Front side of the cube - 
+                if (!cubeMoves && hitTransform.parent.parent != null)
+                    if (hitTransform.parent.parent.name == "RubikCube")
                     {
-                        if (mouseDirection == "YPlus") //Left, middle or Right side rotatates counter clockwise
+                        //Debug.Log(mousetouched);
+                        //Debug.Log(mouseDirection);
+                        //Debug.Log("indexek:                                " + whichCubeClickedMouse_I_index + " " + whichCubeClickedMouse_J_index + " " + whichCubeClickedMouse_K_index);
+                        if (mousetouched == "Front") // mouse pushed the Front side of the cube - 
                         {
-                            rotateCounterClockwiseAxisX(whichCubeClickedMouse_K_index);
+                            if (mouseDirection == "YPlus") //Left, middle or Right side rotatates counter clockwise
+                            {
+                                rotateCounterClockwiseAxisX(whichCubeClickedMouse_K_index);
+                            }
+                            else if (mouseDirection == "YMinus") //Left, middle or Right side rotatates clockwise
+                            {
+                                rotateClockwiseAxisX(whichCubeClickedMouse_K_index);
+                            }
+                            else if (mouseDirection == "XPlus") // Up, Middle or Down level rotates counter clockwise
+                            {
+                                rotateCounterClockwiseAxisY(whichCubeClickedMouse_I_index);
+                            }
+                            else if (mouseDirection == "XMinus")// Up, Middle or Down level rotates clockwise
+                            {
+                                rotateClockwiseAxisY(whichCubeClickedMouse_I_index);
+                            }
                         }
-                        else if (mouseDirection == "YMinus") //Left, middle or Right side rotatates clockwise
+                        if (mousetouched == "Right") // mouse pushed the Right side of the cube - 
                         {
-                            rotateClockwiseAxisX(whichCubeClickedMouse_K_index);
+                            if (mouseDirection == "YPlus") //Front, middle or Back side rotatates counter clockwise
+                            {
+                                rotateCounterClockwiseAxisZ(whichCubeClickedMouse_J_index);
+                            }
+                            else if (mouseDirection == "YMinus") //Front, middle or Back side rotatates clockwise
+                            {
+                                rotateClockwiseAxisZ(whichCubeClickedMouse_J_index);
+                            }
+                            else if (mouseDirection == "ZPlus") // Up, Middle or Down level rotates counter clockwise
+                            {
+                                rotateCounterClockwiseAxisY(whichCubeClickedMouse_I_index);
+                            }
+                            else if (mouseDirection == "ZMinus")// Up, Middle or Down level rotates clockwise
+                            {
+                                rotateClockwiseAxisY(whichCubeClickedMouse_I_index);
+                            }
                         }
-                        else if (mouseDirection == "XPlus") // Up, Middle or Down level rotates counter clockwise
+                        if (mousetouched == "Up") // mouse pushed the Up side of the cube - 
                         {
-                            rotateCounterClockwiseAxisY(whichCubeClickedMouse_I_index);
-                        }
-                        else if (mouseDirection == "XMinus")// Up, Middle or Down level rotates clockwise
-                        {
-                            rotateClockwiseAxisY(whichCubeClickedMouse_I_index);
+                            if (mouseDirection == "ZPlus") //Front, middle or Back side rotatates counter clockwise
+                            {
+                                rotateCounterClockwiseAxisX(whichCubeClickedMouse_K_index);
+                            }
+                            else if (mouseDirection == "ZMinus") //Front, middle or Back side rotatates clockwise
+                            {
+                                rotateClockwiseAxisX(whichCubeClickedMouse_K_index);
+                            }
+                            else if (mouseDirection == "XPlus") // Up, Middle or Down level rotates counter clockwise
+                            {
+                                rotateClockwiseAxisZ(whichCubeClickedMouse_J_index);
+                            }
+                            else if (mouseDirection == "XMinus")// Up, Middle or Down level rotates clockwise
+                            {
+                                rotateCounterClockwiseAxisZ(whichCubeClickedMouse_J_index);
+                            }
                         }
                     }
-                    if (mousetouched == "Right") // mouse pushed the Right side of the cube - 
-                    {
-                        if (mouseDirection == "YPlus") //Front, middle or Back side rotatates counter clockwise
-                        {
-                            rotateCounterClockwiseAxisZ(whichCubeClickedMouse_J_index);
-                        }
-                        else if (mouseDirection == "YMinus") //Front, middle or Back side rotatates clockwise
-                        {
-                            rotateClockwiseAxisZ(whichCubeClickedMouse_J_index);
-                        }
-                        else if (mouseDirection == "ZPlus") // Up, Middle or Down level rotates counter clockwise
-                        {
-                            rotateCounterClockwiseAxisY(whichCubeClickedMouse_I_index);
-                        }
-                        else if (mouseDirection == "ZMinus")// Up, Middle or Down level rotates clockwise
-                        {
-                            rotateClockwiseAxisY(whichCubeClickedMouse_I_index);
-                        }
-                    }
-                    if (mousetouched == "Up") // mouse pushed the Up side of the cube - 
-                    {
-                        if (mouseDirection == "ZPlus") //Front, middle or Back side rotatates counter clockwise
-                        {
-                            rotateCounterClockwiseAxisX(whichCubeClickedMouse_K_index);
-                        }
-                        else if (mouseDirection == "ZMinus") //Front, middle or Back side rotatates clockwise
-                        {
-                            rotateClockwiseAxisX(whichCubeClickedMouse_K_index);
-                        }
-                        else if (mouseDirection == "XPlus") // Up, Middle or Down level rotates counter clockwise
-                        {
-                            rotateClockwiseAxisZ(whichCubeClickedMouse_J_index);
-                        }
-                        else if (mouseDirection == "XMinus")// Up, Middle or Down level rotates clockwise
-                        {
-                            rotateCounterClockwiseAxisZ(whichCubeClickedMouse_J_index);
-                        }
-                    }
-                }
             }
         }
     } // End of DetectObjectWithRaycast
