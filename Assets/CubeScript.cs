@@ -552,33 +552,33 @@ public class CubeScript : MonoBehaviour
                 foundGameobject = true;
                 hitTransform = hit.collider.transform;
                 //Debug.Log(hitTransform.name);
-                if (!cubeMoves && hitTransform.parent.parent != null)
+                if (!cubeMoves && hitTransform.parent != null)
                     if (hitTransform.parent.parent.name == "RubikCube")
                     {
                         if (hitTransform.GetSiblingIndex() == 0)
-                        mousetouched = "Front";
-                    else if (hitTransform.GetSiblingIndex() == 1)
-                        mousetouched = "Right";
-                    else
-                        mousetouched = "Up";
-                    for (int i = 0; i < 3; i++) // search mini cube amoung the 27 cube objects
-                    {
-                        for (int j = 0; j < 3; j++)
+                            mousetouched = "Front";
+                        else if (hitTransform.GetSiblingIndex() == 1)
+                            mousetouched = "Right";
+                        else
+                            mousetouched = "Up";
+                        for (int i = 0; i < 3; i++) // search mini cube amoung the 27 cube objects
                         {
-                            for (int k = 0; k < 3; k++)
+                            for (int j = 0; j < 3; j++)
                             {
-                                //               Debug.Log("tn:" + miniCubes[i, j, k].transform.name + " tpn: " + hitTransform.parent.name);
-                                if (miniCubes[i, j, k].transform.name == hitTransform.parent.name)
+                                for (int k = 0; k < 3; k++)
                                 {
-                                    whichCubeClickedMouse_I_index = i;
-                                    whichCubeClickedMouse_J_index = j;
-                                    whichCubeClickedMouse_K_index = k;
-                                    //Debug.Log("                                                           tn:"+ miniCubes[i, j, k].transform.name+" "+i + " " + j + " " + k+"tpn: "+ hitTransform.parent.name) ;
+                                    //               Debug.Log("tn:" + miniCubes[i, j, k].transform.name + " tpn: " + hitTransform.parent.name);
+                                    if (miniCubes[i, j, k].transform.name == hitTransform.parent.name)
+                                    {
+                                        whichCubeClickedMouse_I_index = i;
+                                        whichCubeClickedMouse_J_index = j;
+                                        whichCubeClickedMouse_K_index = k;
+                                        //Debug.Log("                                                           tn:"+ miniCubes[i, j, k].transform.name+" "+i + " " + j + " " + k+"tpn: "+ hitTransform.parent.name) ;
+                                    }
                                 }
                             }
                         }
                     }
-                }
             }
             else
                 foundGameobject = false;
@@ -588,7 +588,7 @@ public class CubeScript : MonoBehaviour
             if (foundGameobject)
             {
                 mouseDirection = GetRotationDirection(); // X or Y or Z plus or minus
-                if (!cubeMoves && hitTransform.parent.parent != null)
+                if (!cubeMoves && hitTransform.parent != null)
                     if (hitTransform.parent.parent.name == "RubikCube")
                     {
                         //Debug.Log(mousetouched);
