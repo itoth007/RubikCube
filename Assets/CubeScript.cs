@@ -15,11 +15,12 @@ using Unity.VisualScripting.Antlr3.Runtime;
 public class CubeScript : MonoBehaviour
 {
     private new Camera camera;
-    public Vector3 pivotPoint = new Vector3(0, 0, 0);
-    public float moveRate = 0.0001f;
+    [SerializeField] float moveRate = 0.0001f;
+    [SerializeField] Text nrOfTurnText; // on UI
+    [SerializeField] float angleStep = 3;
+    Vector3 pivotPoint = new Vector3(0, 0, 0); // Origo of rotates
     private float timer = 0;
-    public float angleStep = 3;
-    private float currentAngle = 0;
+    float currentAngle = 0;
     bool pressedL = false; // L: Left side of the cube
     bool pressedR = false; // R: Right side of the cube
     bool pressedX = false; // X: X Middle layer between Left and Right
@@ -30,8 +31,6 @@ public class CubeScript : MonoBehaviour
     bool pressedB = false; // B: Back side of the cube
     bool pressedZ = false; // Z: Z Middle layer between Front and Back
     bool pressedH = false; // H: Turn the whole cube horizontal
-    bool pressedV = false; // V: Turn the whole cube vertical
-    bool horisontalClockwise = true; //in Horizontal case the direction is clockwise or not
     bool pressedUpArrow = false; // Up arrow
     bool pressedDownArrow = false; // Down arrow
     bool pressedLeftArrow = false; // Left arrow
@@ -40,13 +39,11 @@ public class CubeScript : MonoBehaviour
     GameObject[,,] miniCubes = new GameObject[3, 3, 3]; //Containx 3x3x3= 27 mini cubes
     GameObject[] temporary9Cubes = new GameObject[9]; // During a turn only 9 cubes moves 
     int front = 0, right = 1, back = 2, left = 3, up = 4, down = 5;
-    int white = 0, yellow = 1, green = 2, blue = 3, orange = 4, red = 5;
     bool wholeCubeRotated = false;
     bool wholeCubeRotationInProgress = false;
-    public int nrOfTurn = 0;
-    public Text nrOfTurnText; // drag and drop text gameobject
-    Vector3 firstMousePosition;
-    Vector3 secondMousePosition;
+    int nrOfTurn = 0; // howmany turns did the user need to reach the target
+    Vector3 firstMousePosition; // during the drag and rotate - mouse first position
+    Vector3 secondMousePosition; // during the drag and rotate - mouse second position
     string mouseDirection; // where to move the mouse
     int whichCubeClickedMouse_I_index;
     int whichCubeClickedMouse_J_index;
@@ -388,16 +385,23 @@ public class CubeScript : MonoBehaviour
         }
     } // End of Rotate27Cubes
     void rotate9Cubes(int[] sides, int iFrom, int iTo, int jFrom, int jTo, int kFrom, int kTo, float x, float y, float z,
-        out bool push1, out bool push2, int conversVersion)
+        out bool pressedLetterBool, out bool pressedArrowBool, int conversVersion)
     // iFrom 0, iTo 1, jFrom 0, jTo 3, kFrom 0, kTo 3: Down
-    // iFrom 1, iTo 2, jFrom 0, jTo 3, kFrom 0, kTo 3: Middle
+    // iFrom 1, iTo 2, jFrom 0, jTo 3, kFrom 0, kTo 3: Y
     // iFrom 2, iTo 3, jFrom 0, jTo 3, kFrom 0, kTo 3: Up
+
     // iFrom 0, iTo 3, jFrom 0, jTo 3, kFrom 2, kTo 3: Right
+    // iFrom 0, iTo 3, jFrom 0, jTo 3, kFrom 1, kTo 2: X
     // iFrom 0, iTo 3, jFrom 0, jTo 3, kFrom 0, kTo 1: Left
+
     // iFrom 0, iTo 3, jFrom 0, jTo 1, kFrom 0, kTo 3: Front
+    // iFrom 0, iTo 3, jFrom 1, jTo 2, kFrom 0, kTo 3: Z
+    // iFrom 0, iTo 3, jFrom 2, jTo 3, kFrom 0, kTo 3: Back
+    // x, y, z rotate angle
+  
     {
-        push1 = true;
-        push2 = true;
+        pressedLetterBool = true;
+        pressedArrowBool = true;
         if (!cubeMoves)
         {
             cubeMoves = true;
@@ -438,7 +442,7 @@ public class CubeScript : MonoBehaviour
                 // Debug.Log(currentAngle);
                 for (int k = 0; k < 9; k++)
                 {
-                    if (x != 0) // according to axis, I rotate
+                    if (x != 0) // according to axis, rotate
                         temporary9Cubes[k].transform.RotateAround(pivotPoint, Vector3.left, x);
                     if (y != 0)
                         temporary9Cubes[k].transform.RotateAround(pivotPoint, Vector3.up, y);
@@ -449,19 +453,22 @@ public class CubeScript : MonoBehaviour
             //  else
             if (Math.Abs(currentAngle) >= 90)
             {
-                push1 = false;
-                push2 = false;
+                pressedLetterBool = false;
+                pressedArrowBool = false;
                 currentAngle = 0;
                 order9cubes(conversVersion);
-                //for (int i = 0; i < 3; i++) // TEST COLORS
-                //{
-                //    for (int j = 0; j < 1; j++)
-                //    {
-                //        Debug.Log(miniCubes[i, j, 0].transform.GetChild(0).name + " " + miniCubes[i, j, 1].transform.GetChild(0).name + " " + miniCubes[i, j, 2].transform.GetChild(0).name);
-                //    }
-                //}
-                nrOfTurn++;
-                nrOfTurnText.text = nrOfTurn.ToString();
+                for (int i = 0; i < 3; i++) // TEST COLORS
+                {
+                    for (int j = 0; j < 1; j++)
+                    {
+                        Debug.Log(miniCubes[i, j, 0].transform.GetChild(0).name + " " + miniCubes[i, j, 1].transform.GetChild(0).name + " " + miniCubes[i, j, 2].transform.GetChild(0).name);
+                    }
+                }
+                if (!firstRound)
+                {
+                    nrOfTurn++;
+                    nrOfTurnText.text = nrOfTurn.ToString();
+                }
                 cubeMoves = false;
                 timer = 0;
             }
@@ -477,17 +484,31 @@ public class CubeScript : MonoBehaviour
             case 2: // Down Left
                 movesCube(new int[] { 6, 3, 0, 7, 4, 1, 8, 5, 2 });
                 break;
+            case 11: // Y Middle layer between Up and Down arrowRight
+                movesCube(new int[] { 11, 14, 17, 10, 13, 16, 9, 12, 15 });
+                break;
+            case 12: // Y Middle layer between Up and Down arrowLeft
+                movesCube(new int[] { 15, 12, 9, 16, 13, 10, 17, 14, 11 });
+                break;
             case 3: // Up Right
                 movesCube(new int[] { 20, 23, 26, 19, 22, 25, 18, 21, 24 });
                 break;
             case 4: // Up Left
                 movesCube(new int[] { 24, 21, 18, 25, 22, 19, 26, 23, 20 });
                 break;
+
+
             case 5: // Right Down
                 movesCube(new int[] { 8, 17, 26, 5, 14, 23, 2, 11, 20 });
                 break;
             case 6: // Right Up
                 movesCube(new int[] { 20, 11, 2, 23, 14, 5, 26, 17, 8 });
+                break;
+            case 13: // X Middle layer between Left and Right arrowDown
+                movesCube(new int[] { 7, 16, 25, 4, 13, 22, 1, 10, 19 });
+                break;
+            case 14: // X Middle layer between Left and Right arrowUp
+                movesCube(new int[] { 19, 10, 1, 22, 13, 4, 25, 16, 7 });
                 break;
             case 7: // Left Down
                 movesCube(new int[] { 6, 15, 24, 3, 12, 21, 0, 9, 18 });
@@ -495,23 +516,13 @@ public class CubeScript : MonoBehaviour
             case 8: // Left Up
                 movesCube(new int[] { 18, 9, 0, 21, 12, 3, 24, 15, 6 });
                 break;
+
+
             case 9: // Front Right Clock
                 movesCube(new int[] { 18, 9, 0, 19, 10, 1, 20, 11, 2 });
                 break;
             case 10: // Front Left counter Clock
                 movesCube(new int[] { 2, 11, 20, 1, 10, 19, 0, 9, 18 });
-                break;
-            case 11: // Y Middle layer between Up and Down arrowRight
-                movesCube(new int[] { 11, 14, 17, 10, 13, 16, 9, 12, 15 });
-                break;
-            case 12: // Y Middle layer between Up and Down arrowLeft
-                movesCube(new int[] { 15, 12, 9, 16, 13, 10, 17, 14, 11 });
-                break;
-            case 13: // X Middle layer between Left and Right arrowDown
-                movesCube(new int[] { 7, 16, 25, 4, 13, 22, 1, 10, 19 });
-                break;
-            case 14: // X Middle layer between Left and Right arrowUp
-                movesCube(new int[] { 19, 10, 1, 22, 13, 4, 25, 16, 7 });
                 break;
             case 15: // Z Middle between front and back, Right Clock
                 movesCube(new int[] { 21, 12, 3, 22, 13, 4, 23, 14, 5 });
@@ -527,7 +538,7 @@ public class CubeScript : MonoBehaviour
                 break;
         }
     } // End of order9cubes
-    void movesCube(int[] cubePosition) // now we put the 9 cubes to the correct place in MiniCubes matrix
+    void movesCube(int[] cubePosition) // now we put the 9 cubes to the correct place in MiniCubes matrix from temporary
     {
         for (int l = 0; l < 9; l++)
         {
@@ -550,7 +561,7 @@ public class CubeScript : MonoBehaviour
                 foundGameobject = true;
                 hitTransform = hit.collider.transform;
                 //Debug.Log(hitTransform.name);
-                if (!cubeMoves && hitTransform.parent != null)
+                if (!cubeMoves && hitTransform.parent.parent != null)
                     if (hitTransform.parent.parent.name == "RubikCube")
                     {
                         if (hitTransform.GetSiblingIndex() == 0)
@@ -586,7 +597,7 @@ public class CubeScript : MonoBehaviour
             if (foundGameobject)
             {
                 mouseDirection = GetRotationDirection(); // X or Y or Z plus or minus
-                if (!cubeMoves && hitTransform.parent != null)
+                if (!cubeMoves && hitTransform.parent.parent != null)
                     if (hitTransform.parent.parent.name == "RubikCube")
                     {
                         //Debug.Log(mousetouched);
@@ -658,16 +669,13 @@ public class CubeScript : MonoBehaviour
         switch (index)
         {
             case 0:
-                sides = new int[] { down, right, up, left, front, back }; // defines the order after rotate
-                rotate9Cubes(sides, 0, 3, 0, 3, 0, 1, -angleStep, 0, 0, out pressedL, out pressedUpArrow, 8);
+                pressedL = true; pressedUpArrow = true; // Update method rotates
                 break;
             case 1:
-                sides = new int[] { down, right, up, left, front, back }; // defines the order after rotate
-                rotate9Cubes(sides, 0, 3, 0, 3, 1, 2, -angleStep, 0, 0, out pressedX, out pressedUpArrow, 14);
+                pressedX = true; pressedUpArrow = true; // Update method rotates
                 break;
             case 2:
-                sides = new int[] { down, right, up, left, front, back }; // defines the order after rotate
-                rotate9Cubes(sides, 0, 3, 0, 3, 2, 3, -angleStep, 0, 0, out pressedR, out pressedUpArrow, 6);
+                pressedR = true; pressedUpArrow = true; // Update method rotates
                 break;
         }
     } // End of rotateCounterClockwiseAxisX
@@ -676,16 +684,13 @@ public class CubeScript : MonoBehaviour
         switch (whichCubeClickedMouse_K_index)
         {
             case 0:
-                sides = new int[] { up, right, down, left, back, front }; // defines the order after rotate
-                rotate9Cubes(sides, 0, 3, 0, 3, 0, 1, angleStep, 0, 0, out pressedL, out pressedDownArrow, 7);
+                pressedL = true; pressedDownArrow = true; // Update method rotates
                 break;
             case 1:
-                sides = new int[] { up, right, down, left, back, front }; // defines the order after rotate
-                rotate9Cubes(sides, 0, 3, 0, 3, 1, 2, angleStep, 0, 0, out pressedX, out pressedDownArrow, 13);
+                pressedX = true; pressedDownArrow = true; // Update method rotates
                 break;
             case 2:
-                sides = new int[] { up, right, down, left, back, front }; // defines the order after rotate
-                rotate9Cubes(sides, 0, 3, 0, 3, 2, 3, angleStep, 0, 0, out pressedR, out pressedDownArrow, 5);
+                pressedR = true; pressedDownArrow = true; // Update method rotates
                 break;
         }
     } // End of rotateClockwiseAxisX
@@ -694,16 +699,13 @@ public class CubeScript : MonoBehaviour
         switch (index)
         {
             case 0:
-                sides = new int[] { left, front, right, back, up, down }; // defines the order after rotate
-                rotate9Cubes(sides, 0, 1, 0, 3, 0, 3, 0, -angleStep, 0, out pressedD, out pressedRightArrow, 1);
+                pressedD = true; pressedRightArrow = true; // Update method rotates
                 break;
             case 1:
-                sides = new int[] { left, front, right, back, up, down }; // defines the order after rotate
-                rotate9Cubes(sides, 1, 2, 0, 3, 0, 3, 0, -angleStep, 0, out pressedY, out pressedRightArrow, 11);
+                pressedY = true; pressedRightArrow = true; // Update method rotates
                 break;
             case 2:
-                sides = new int[] { left, front, right, back, up, down }; // defines the order after rotate
-                rotate9Cubes(sides, 2, 3, 0, 3, 0, 3, 0, -angleStep, 0, out pressedU, out pressedRightArrow, 3);
+                pressedU = true; pressedRightArrow = true; // Update method rotates
                 break;
         }
     } // End of rotateCounterClockwiseAxisY
@@ -712,16 +714,13 @@ public class CubeScript : MonoBehaviour
         switch (index)
         {
             case 0:
-                sides = new int[] { right, back, left, front, up, down }; // defines the order after rotate
-                rotate9Cubes(sides, 0, 1, 0, 3, 0, 3, 0, angleStep, 0, out pressedD, out pressedLeftArrow, 2);
+                pressedD = true; pressedLeftArrow = true; // Update method rotates
                 break;
             case 1:
-                sides = new int[] { right, back, left, front, up, down }; // defines the order after rotate
-                rotate9Cubes(sides, 1, 2, 0, 3, 0, 3, 0, angleStep, 0, out pressedY, out pressedLeftArrow, 12);
+                pressedY = true; pressedLeftArrow = true; // Update method rotates
                 break;
             case 2:
-                sides = new int[] { right, back, left, front, up, down }; // defines the order after rotate
-                rotate9Cubes(sides, 2, 3, 0, 3, 0, 3, 0, angleStep, 0, out pressedU, out pressedLeftArrow, 4);
+                pressedU = true; pressedLeftArrow = true; // Update method rotates
                 break;
         }
     } // End of rotateClockwiseAxisY
@@ -730,16 +729,13 @@ public class CubeScript : MonoBehaviour
         switch (index)
         {
             case 0:
-                sides = new int[] { front, down, back, up, right, left }; // defines the order after rotate
-                rotate9Cubes(sides, 0, 3, 0, 1, 0, 3, 0, 0, -angleStep, out pressedF, out pressedLeftArrow, 10);
+                pressedF = true; pressedLeftArrow = true; // Update method rotates
                 break;
             case 1:
-                sides = new int[] { front, down, back, up, right, left }; // defines the order after rotate
-                rotate9Cubes(sides, 0, 3, 1, 2, 0, 3, 0, 0, -angleStep, out pressedZ, out pressedLeftArrow, 16);
+                pressedZ = true; pressedLeftArrow = true; // Update method rotates
                 break;
             case 2:
-                sides = new int[] { front, down, back, up, right, left }; // defines the order after rotate
-                rotate9Cubes(sides, 0, 3, 2, 3, 0, 3, 0, 0, -angleStep, out pressedB, out pressedLeftArrow, 18);
+                pressedB = true; pressedLeftArrow = true; // Update method rotates
                 break;
         }
     } // End of rotateCounterClockwiseAxisZ
@@ -748,59 +744,28 @@ public class CubeScript : MonoBehaviour
         switch (index)
         {
             case 0:
+                pressedF = true; pressedRightArrow = true; // Update method rotates
                 sides = new int[] { front, up, back, down, left, right }; // defines the order after rotate
                 rotate9Cubes(sides, 0, 3, 0, 1, 0, 3, 0, 0, angleStep, out pressedF, out pressedRightArrow, 9);
                 break;
             case 1:
+                pressedZ = true; pressedRightArrow = true; // Update method rotates
                 sides = new int[] { front, up, back, down, left, right }; // defines the order after rotate
                 rotate9Cubes(sides, 0, 3, 1, 2, 0, 3, 0, 0, angleStep, out pressedZ, out pressedRightArrow, 15);
                 break;
             case 2:
+                pressedB = true; pressedRightArrow = true; // Update method rotates
                 sides = new int[] { front, up, back, down, left, right }; // defines the order after rotate
                 rotate9Cubes(sides, 0, 3, 2, 3, 0, 3, 0, 0, angleStep, out pressedB, out pressedRightArrow, 17);
                 break;
         }
     } // End of rotateClockwiseAxisZ
-    void rotate9x6Quad(int[] sides, int iFrom, int iTo, int jFrom, int jTo, int kFrom, int kTo)
+    string GetRotationDirection()  // During drag and rotate, try to find out on 2D the 3D direction
     {
-        for (int i = iFrom; i < iTo; i++)
-        {
-            for (int j = jFrom; j < jTo; j++)
-            {
-                for (int k = kFrom; k < kTo; k++)
-                {
-                    int[] offset = { 0, 0, 0, 0, 0, 0 };
-                    for (int l = 0; l < 6; l++)
-                    {
-                        miniCubes[i, j, k].transform.GetChild(sides[l] + offset[sides[l]]).SetSiblingIndex(l);
-                        //Debug.Log("                                                      -    " + (sides[l] + offset[l]) + " hely menjen a " + l + " helyre");
-                        for (int m = 0; m < 6; m++)
-                        {
-                            if (i == 0 && j == 0 && k == 0)
-                            {
-                                //Debug.Log("l: " + l + " sides[l]: " + sides[l] + " m: " + m + " offset[m]:" + offset[m]);
-                            }
-                            if (sides[l] > m)//+ offset[m])
-                            {
-                                //Debug.Log("bent");
-                                offset[m]++;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    } // End of rotate9x6Quad
-
-    string GetRotationDirection()
-    {
-        float deltaX = 0; // delta between first and second mouseposition
-        float deltaY = 0;
-        float deltaZ = 0;
+        float deltaX, deltaY; // delta between first and second mouseposition
         secondMousePosition = Input.mousePosition; // last position
         deltaX = secondMousePosition.x - firstMousePosition.x;
         deltaY = secondMousePosition.y - firstMousePosition.y;
-        deltaZ = secondMousePosition.z - firstMousePosition.z;
         if (Mathf.Abs(deltaY) > Mathf.Abs(deltaX) * 2) // in perspective it is a good number the 2
         {
             if (deltaY < 0) return "YMinus";
