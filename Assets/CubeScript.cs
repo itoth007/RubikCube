@@ -11,6 +11,7 @@ using UnityEngine.TestTools;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine.UIElements;
 using Unity.VisualScripting.Antlr3.Runtime;
+using static UnityEngine.GraphicsBuffer;
 
 public class CubeScript : MonoBehaviour
 {
@@ -18,6 +19,9 @@ public class CubeScript : MonoBehaviour
     [SerializeField] float moveRate = 0.0001f;
     [SerializeField] Text nrOfTurnText; // on UI
     [SerializeField] float angleStep = 3;
+    [SerializeField] float dropSpeed = 1f;
+    [SerializeField] AudioClip turnAudio;
+    [SerializeField] AudioClip dropAudio;
     Vector3 pivotPoint = new Vector3(0, 0, 0); // Origo of rotates
     private float timer = 0;
     float currentAngle = 0;
@@ -52,10 +56,13 @@ public class CubeScript : MonoBehaviour
     Transform tempTransform;
     Transform hitTransform;
     int[] sides = { 0, 0, 0, 0, 0, 0 };
-    bool firstRound = true;
+    bool firstRound = true; // Minicubes drop down from the sky
+    bool secondRound = false; // mix rubik cube
+    int countDroppedMiniCubes = 0; // miniCubes are dropping down in order
+    int numberOfMiniCube = 0;
+    float scaleRubik = 0;
     bool foundGameobject = false;
-
-
+    AudioSource audioSource;
 
     // Start is called before the first frame update
     void Start()
@@ -71,53 +78,104 @@ public class CubeScript : MonoBehaviour
                 }
             }
         }
+        scaleRubik = miniCubes[2, 2, 2].transform.parent.localScale.x;
+        audioSource = GetComponent<AudioSource>();
     } // End of Start
     // Update is called once per frame
     void Update()
     {
-        if (firstRound) // create a mix cube in the first round
+        if (firstRound) // MiniCube drop down from the sky
+            FirstRound();
+        else
         {
-            angleStep = 90; // rotate quickly - no animation
-            MixCube(); // run 3x in each 4 rotation - total 12
-            MixCube();
-            MixCube();
-            pressedL = false; pressedR = false; pressedF = false; pressedB = false; pressedD = false; pressedY = false; pressedU = false; pressedH = false; pressedX = false; pressedZ = false;
-            pressedUpArrow = false; pressedDownArrow = false; pressedRightArrow = false; pressedLeftArrow = false;
-            timer = 0;
-            firstRound = false;
-            angleStep = 3; // slow rotation
-        }
-        else // normal working
-        {
-            // There are two rotating method:
-            //          1: with keys (letter determines sides - 9 mini cube from 27. Plus arrowKeys determins the direction
-            //          2. With mouse drag and rotate
+            if (secondRound) // create a mix cube after the first round
+            {
+                SecondRound();
+            }
+            else // further rounds - normal update working
+            {
+                // There are two rotating method:
+                //          1: with keys (letter determines sides - 9 mini cube from 27. Plus arrowKeys determins the direction
+                //          2. With mouse drag and rotate
 
-            // 1. method: keys and arrowKeys
-            // Key pressed? And which one?
-            WhichLetterPressed();
+                // 1. method: keys and arrowKeys
+                // Key pressed? And which one?
+                WhichLetterPressed();
 
-            // ArrowKey pressed? And which one
-            WhichArrowKeyPressed();
+                // ArrowKey pressed? And which one
+                WhichArrowKeyPressed();
 
-            // We know the letter (side/layer - 9 mmini cubes from 27) and the arrow key, then we can rotate
+                // We know the letter (side/layer - 9 mmini cubes from 27) and the arrow key, then we can rotate
 
-            //LEFT OR RIGHT or between them the X MIDDLE LAYER SIDE - axis X
-            Rotate9MiniCubesAxisX(); //conditions inside
+                //LEFT OR RIGHT or between them the X MIDDLE LAYER SIDE - axis X
+                Rotate9MiniCubesAxisX(); //conditions inside
 
-            //UP OR DOWN or betweenn them the Y MIDDLE LAYER SIDE - axis Y
-            Rotate9MiniCubesAxisY();//conditions inside
+                //UP OR DOWN or betweenn them the Y MIDDLE LAYER SIDE - axis Y
+                Rotate9MiniCubesAxisY();//conditions inside
 
-            //FRONT OR BACK or betweenn them the Z MIDDLE LAYER SIDE - axis Z
-            Rotate9MiniCubesAxisZ();//conditions inside
+                //FRONT OR BACK or betweenn them the Z MIDDLE LAYER SIDE - axis Z
+                Rotate9MiniCubesAxisZ();//conditions inside
 
-            //Rotate the whole big Rubik cuve to see non visible sides
-            Rotate27Cubes();//conditions inside
+                //Rotate the whole big Rubik cube to see non visible sides
+                Rotate27Cubes();//conditions inside
 
-            // 2. Method - with mouse drag and rotate
-            DetectObjectWithRaycast();
+                // 2. Method - with mouse drag and rotate
+                DetectObjectWithRaycast();
+            }
         }
     } // End of Update
+    void FirstRound() // Minicubes drop down from the sky
+    {
+        float temp, temp1;
+        for (int i = 0; i < 3; i++) // drop down 27 cube object
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                for (int z = 0; z < 3; z++)
+                {
+                    numberOfMiniCube = z + j * 3 + i * 9;
+                    if (countDroppedMiniCubes >= numberOfMiniCube) // drop this minicube and not wait anymore
+                    {
+                        Vector3 selfPoint = miniCubes[i, j, z].transform.position; // one miniCubes
+                        Vector3 targetPoint = new Vector3(selfPoint.x, (i - 1) * 1.1f * scaleRubik, selfPoint.z); // Rubik 3 layers y = -1.1 or 0 or 1.1
+                        Vector3 dir = targetPoint - selfPoint; //diretion
+                        if (dir != Vector3.zero)
+                        {
+                            miniCubes[i, j, z].transform.position = Vector3.MoveTowards(selfPoint, targetPoint, dropSpeed * Time.deltaTime);
+                            temp = Mathf.Round(((i - 1) * 1.1f * scaleRubik) * 100); // bottom of minicube
+                            temp1 = Mathf.Round(miniCubes[i, j, z].transform.position.y * 100); // current Y position
+                            if (temp == temp1) // Is it on botton? - One miniCube dropped down (audio) 
+                                audioSource.PlayOneShot(dropAudio, 0.2f);
+                        }
+                    }
+                    if (countDroppedMiniCubes == numberOfMiniCube) // if this is the last moving minicube, then start the next minicube, which waited till now
+                    {
+                        if (Mathf.Round(miniCubes[i, j, z].transform.position.y * 100) <= Mathf.Round(((i - 1) * 1.1f * scaleRubik) + 8) * 100) // round 2 digits
+                        {  // rubik start from y=+10 and drop down to 0. But if one minicube reaches y=+8, start the next minicube 
+                            countDroppedMiniCubes++; // another moving minicube
+                        }
+                    }
+                }
+            }
+        }
+        if (miniCubes[2, 2, 2].transform.position.y <= +1.1f * scaleRubik) // last minicube reached the bottom.
+        {
+            firstRound = false;
+            secondRound = true;
+        }
+    } // End of FirstRound
+    void SecondRound() // Mix the Rubik cude
+    {
+        angleStep = 90; // rotate quickly - no animation
+        MixCube(); // run 3x in each 4 rotation - total 12
+        MixCube();
+        MixCube();
+        pressedL = false; pressedR = false; pressedF = false; pressedB = false; pressedD = false; pressedY = false; pressedU = false; pressedH = false; pressedX = false; pressedZ = false;
+        pressedUpArrow = false; pressedDownArrow = false; pressedRightArrow = false; pressedLeftArrow = false;
+        timer = 0;
+        secondRound = false;
+        angleStep = 3; // slow rotation
+    } // End of SecondRound
     void MixCube() // Call this 3 times , in each 4 random rotate - mix
     {
         pressedL = true;
@@ -398,7 +456,7 @@ public class CubeScript : MonoBehaviour
     // iFrom 0, iTo 3, jFrom 1, jTo 2, kFrom 0, kTo 3: Z
     // iFrom 0, iTo 3, jFrom 2, jTo 3, kFrom 0, kTo 3: Back
     // x, y, z rotate angle
-  
+
     {
         pressedLetterBool = true;
         pressedArrowBool = true;
@@ -464,7 +522,8 @@ public class CubeScript : MonoBehaviour
                         Debug.Log(miniCubes[i, j, 0].transform.GetChild(0).name + " " + miniCubes[i, j, 1].transform.GetChild(0).name + " " + miniCubes[i, j, 2].transform.GetChild(0).name);
                     }
                 }
-                if (!firstRound)
+                audioSource.PlayOneShot(turnAudio, 1f);
+                if (!secondRound)
                 {
                     nrOfTurn++;
                     nrOfTurnText.text = nrOfTurn.ToString();
