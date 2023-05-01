@@ -522,7 +522,7 @@ public class CubeScript : MonoBehaviour
                         Debug.Log(miniCubes[i, j, 0].transform.GetChild(0).name + " " + miniCubes[i, j, 1].transform.GetChild(0).name + " " + miniCubes[i, j, 2].transform.GetChild(0).name);
                     }
                 }
-                audioSource.PlayOneShot(turnAudio, 1f);
+                audioSource.PlayOneShot(turnAudio, 1f); // turn sound
                 if (!secondRound)
                 {
                     nrOfTurn++;
