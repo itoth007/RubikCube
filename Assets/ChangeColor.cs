@@ -1,26 +1,47 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 
-public class ChangeColor : MonoBehaviour
+public class ChangeColor : MonoBehaviour // Add this script to canvas
 {
     [SerializeField] Button bottomMirrorButton;
-    
-    public void ChangeColorOfButton()
+    [SerializeField] Button twoSideMirrorsButton;
+    [SerializeField] Button audioMustButton;
+    public void ChangeColorOfMirrorButton()
     {
-        if (SetupScript.bottomMirror)
+        ChangeColorOfButton(SetupScript.bottomMirror, bottomMirrorButton);
+    }
+    public void ChangeColorOfTwoSideMirrorsButton()
+    {
+        ChangeColorOfButton(SetupScript.twoSideMirrors, twoSideMirrorsButton);
+    }
+    public void ChangeColorOfAudiMustButton()
+    {
+        ChangeColorOfButton(SetupScript.audioMust, audioMustButton);
+    }
+
+    void ChangeColorOfButton(bool upDown, Button button)
+    {
+        if (upDown)
         {
-            ColorBlock cb = bottomMirrorButton.colors;
+            ColorBlock cb = button.colors;
             cb.selectedColor = Color.yellow;
-            bottomMirrorButton.colors = cb;
+            cb.normalColor = Color.yellow;
+            cb.pressedColor = Color.yellow;
+            cb.highlightedColor = Color.Lerp(Color.green,Color.yellow,0.5f);
+            button.colors = cb;
         }
         else
         {
-            ColorBlock cb = bottomMirrorButton.colors;
+            ColorBlock cb = button.colors;
             cb.selectedColor = Color.grey;
-            bottomMirrorButton.colors = cb;
+            cb.normalColor = Color.grey;
+            cb.pressedColor = Color.grey;
+            cb.highlightedColor = Color.Lerp(Color.green, Color.grey, 0.5f);
+            button.colors = cb;
         }
     }
 }

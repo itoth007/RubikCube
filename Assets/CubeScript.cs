@@ -24,6 +24,10 @@ public class CubeScript : MonoBehaviour
     [SerializeField] AudioClip turnAudio;
     [SerializeField] AudioClip dropAudio;
     [SerializeField] GameObject bottomMirrorGameObject;
+    [SerializeField] GameObject twoSideMirrorsGameObjectA;
+    [SerializeField] GameObject twoSideMirrorsGameObjectB;
+    [SerializeField] GameObject twoSideMirrorsGameObjectTextA;
+    [SerializeField] GameObject twoSideMirrorsGameObjectTextB;
     Vector3 pivotPoint = new Vector3(0, 0, 0); // Origo of rotates
     private float timer = 0;
     float currentAngle = 0;
@@ -70,6 +74,10 @@ public class CubeScript : MonoBehaviour
     void Start()
     {
         bottomMirrorGameObject.SetActive(SetupScript.bottomMirror);
+        twoSideMirrorsGameObjectA.SetActive(SetupScript.twoSideMirrors);
+        twoSideMirrorsGameObjectB.SetActive(SetupScript.twoSideMirrors);
+        twoSideMirrorsGameObjectTextA.SetActive(SetupScript.twoSideMirrors);
+        twoSideMirrorsGameObjectTextB.SetActive(SetupScript.twoSideMirrors);
         camera = Camera.main;
         for (int i = 0; i < 3; i++) // fill in 27 cube object
         {
@@ -151,7 +159,8 @@ public class CubeScript : MonoBehaviour
                             temp = Mathf.Round(((i - 1) * 1.1f * scaleRubik) * 100); // bottom of minicube
                             temp1 = Mathf.Round(miniCubes[i, j, z].transform.position.y * 100); // current Y position
                             if (temp == temp1) // Is it on botton? - One miniCube dropped down (audio) 
-                                audioSource.PlayOneShot(dropAudio, 0.2f);
+                                if(SetupScript.audioMust) // user chosed audio
+                                    audioSource.PlayOneShot(dropAudio, 0.2f);
                         }
                     }
                     if (countDroppedMiniCubes == numberOfMiniCube) // if this is the last moving minicube, then start the next minicube, which waited till now
@@ -528,7 +537,8 @@ public class CubeScript : MonoBehaviour
                         Debug.Log(miniCubes[i, j, 0].transform.GetChild(0).name + " " + miniCubes[i, j, 1].transform.GetChild(0).name + " " + miniCubes[i, j, 2].transform.GetChild(0).name);
                     }
                 }
-                audioSource.PlayOneShot(turnAudio, 1f); // turn sound
+                if (SetupScript.audioMust) // user chosed audio
+                    audioSource.PlayOneShot(turnAudio, 1f); // turn sound
                 if (!secondRound)
                 {
                     nrOfTurn++;
@@ -858,6 +868,5 @@ public class CubeScript : MonoBehaviour
     {
         SceneManager.LoadScene("Setup");
     }
-
 }
 
