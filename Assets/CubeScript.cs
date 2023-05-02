@@ -12,6 +12,7 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine.UIElements;
 using Unity.VisualScripting.Antlr3.Runtime;
 using static UnityEngine.GraphicsBuffer;
+using UnityEngine.SceneManagement;
 
 public class CubeScript : MonoBehaviour
 {
@@ -22,6 +23,7 @@ public class CubeScript : MonoBehaviour
     [SerializeField] float dropSpeed = 1f;
     [SerializeField] AudioClip turnAudio;
     [SerializeField] AudioClip dropAudio;
+    [SerializeField] GameObject bottomMirrorGameObject;
     Vector3 pivotPoint = new Vector3(0, 0, 0); // Origo of rotates
     private float timer = 0;
     float currentAngle = 0;
@@ -67,6 +69,7 @@ public class CubeScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        bottomMirrorGameObject.SetActive(SetupScript.bottomMirror);
         camera = Camera.main;
         for (int i = 0; i < 3; i++) // fill in 27 cube object
         {
@@ -121,6 +124,9 @@ public class CubeScript : MonoBehaviour
 
                 // 2. Method - with mouse drag and rotate
                 DetectObjectWithRaycast();
+
+                // End of play?
+                ExitRubik();
             }
         }
     } // End of Update
@@ -840,6 +846,18 @@ public class CubeScript : MonoBehaviour
             if (deltaX > 0) return "XPlus";
             else return "XMinus";
         }
+    }// End of GetRotationDirection
+    void ExitRubik()
+    {
+        if (Input.GetKey("escape")) // exscame game finishes
+        {
+            Application.Quit();
+        }
+    } // End of ExitRubik
+    public void Setup() // Play button ... on click, SetupScript and this function
+    {
+        SceneManager.LoadScene("Setup");
     }
-} // End of GetRotationDirection
+
+}
 
