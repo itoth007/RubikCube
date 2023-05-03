@@ -24,6 +24,7 @@ public class CubeScript : MonoBehaviour
     [SerializeField] AudioClip turnAudio;
     [SerializeField] AudioClip dropAudio;
     [SerializeField] GameObject bottomMirrorGameObject;
+    [SerializeField] GameObject bottomMirrorGameObjectText;
     [SerializeField] GameObject twoSideMirrorsGameObjectA;
     [SerializeField] GameObject twoSideMirrorsGameObjectB;
     [SerializeField] GameObject twoSideMirrorsGameObjectTextA;
@@ -74,10 +75,12 @@ public class CubeScript : MonoBehaviour
     void Start()
     {
         bottomMirrorGameObject.SetActive(SetupScript.bottomMirror);
+        bottomMirrorGameObjectText.SetActive(SetupScript.bottomMirror);
         twoSideMirrorsGameObjectA.SetActive(SetupScript.twoSideMirrors);
         twoSideMirrorsGameObjectB.SetActive(SetupScript.twoSideMirrors);
         twoSideMirrorsGameObjectTextA.SetActive(SetupScript.twoSideMirrors);
         twoSideMirrorsGameObjectTextB.SetActive(SetupScript.twoSideMirrors);
+        Debug.Log($"{SetupScript.target1}, {SetupScript.target2}, {SetupScript.target3} ");
         camera = Camera.main;
         for (int i = 0; i < 3; i++) // fill in 27 cube object
         {
@@ -859,12 +862,12 @@ public class CubeScript : MonoBehaviour
     }// End of GetRotationDirection
     void ExitRubik()
     {
-        if (Input.GetKey("escape")) // exscame game finishes
+        if (Input.GetKey("escape")) // escape - game finishes
         {
             Application.Quit();
         }
     } // End of ExitRubik
-    public void Setup() // Play button ... on click, SetupScript and this function
+    public void Setup() // Setup button 
     {
         SceneManager.LoadScene("Setup");
     }

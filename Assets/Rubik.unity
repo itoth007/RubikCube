@@ -3692,9 +3692,9 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_NormalColor: {r: 0.990566, g: 0.031772807, b: 0.14943615, a: 1}
+    m_HighlightedColor: {r: 0.03147021, g: 0.9811321, b: 0.090379395, a: 1}
+    m_PressedColor: {r: 0.021787085, g: 0.9622642, b: 0.06155109, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
@@ -3728,7 +3728,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.9811321, g: 0.32766104, b: 0.32766104, a: 1}
+  m_Color: {r: 0.9716981, g: 0.947864, b: 0.947864, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -9090,9 +9090,9 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_NormalColor: {r: 0.990566, g: 0.031772807, b: 0.13941365, a: 1}
+    m_HighlightedColor: {r: 0.050943315, g: 1, b: 0.14789644, a: 1}
+    m_PressedColor: {r: 0.05967191, g: 0.9528302, b: 0.0395514, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
@@ -9138,7 +9138,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.9433962, g: 0.40405837, b: 0.40405837, a: 1}
+  m_Color: {r: 0.9716981, g: 0.93869704, b: 0.93869704, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -10597,6 +10597,7 @@ MonoBehaviour:
   turnAudio: {fileID: 8300000, guid: 12b68d9e5a94b2f42b740ffdab894b3e, type: 3}
   dropAudio: {fileID: 8300000, guid: 542a81ffa292c1d46ba0d9187d574366, type: 3}
   bottomMirrorGameObject: {fileID: 960599609}
+  bottomMirrorGameObjectText: {fileID: 948151216}
   twoSideMirrorsGameObjectA: {fileID: 205746587}
   twoSideMirrorsGameObjectB: {fileID: 847973456}
   twoSideMirrorsGameObjectTextA: {fileID: 1672812444}
