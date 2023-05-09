@@ -17,7 +17,7 @@ using UnityEngine.SceneManagement;
 public class CubeScript : MonoBehaviour
 {
     private new Camera camera;
-    [SerializeField] float moveRate = 0.0001f;
+    [SerializeField] float timeRate = 0.0001f;
     [SerializeField] Text nrOfTurnText; // on UI
     [SerializeField] float angleStep = 3;
     [SerializeField] float dropSpeed = 1f;
@@ -197,7 +197,7 @@ public class CubeScript : MonoBehaviour
     void MixCube() // Call this 3 times , in each 4 random rotate - mix
     {
         pressedL = true;
-        timer = moveRate;
+        timer = timeRate;
         if (UnityEngine.Random.Range(0.0f, 1.0f) < 0.5)
         {
             pressedUpArrow = true;
@@ -212,7 +212,7 @@ public class CubeScript : MonoBehaviour
         }
 
         pressedU = true;
-        timer = moveRate;
+        timer = timeRate;
         if (UnityEngine.Random.Range(0.0f, 1.0f) < 0.5)
         {
             pressedLeftArrow = true;
@@ -227,7 +227,7 @@ public class CubeScript : MonoBehaviour
         }
 
         pressedF = true;
-        timer = moveRate;
+        timer = timeRate;
         if (UnityEngine.Random.Range(0.0f, 1.0f) < 0.5)
         {
             pressedLeftArrow = true;
@@ -242,7 +242,7 @@ public class CubeScript : MonoBehaviour
         }
 
         pressedX = true;
-        timer = moveRate;
+        timer = timeRate;
         if (UnityEngine.Random.Range(0.0f, 1.0f) < 0.5)
         {
             pressedUpArrow = true;
@@ -428,7 +428,7 @@ public class CubeScript : MonoBehaviour
         else
             return;
         cubeMoves = true;
-        if (timer < moveRate) // rotate
+        if (timer < timeRate) // rotate
         {
             timer = timer + Time.deltaTime;
         }
@@ -506,13 +506,13 @@ public class CubeScript : MonoBehaviour
                 }
             }
         }
-        if (timer < moveRate) // rotate
+        if (timer < timeRate) // rotate
         {
             timer = timer + Time.deltaTime;
         }
         else
         {
-            currentAngle = currentAngle + angleStep;
+            currentAngle += angleStep;
             if (Math.Abs(currentAngle) <= 90)
             {
                 // Debug.Log(currentAngle);

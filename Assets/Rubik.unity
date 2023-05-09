@@ -10590,7 +10590,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca3df30a7c0954142b0c2db0a8da7fa0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveRate: 0.00001
+  timeRate: 0.0001
   nrOfTurnText: {fileID: 692041904}
   angleStep: 3
   dropSpeed: 7

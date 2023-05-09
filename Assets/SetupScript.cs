@@ -10,7 +10,7 @@ public class SetupScript : MonoBehaviour
     [SerializeField] int yOffset = 5;
     [SerializeField] float targetBottomY = -25f;
     [SerializeField] int lastDroppedMiniCube = 5; public static bool bottomMirror = true;
-    public static bool twoSideMirrors = false;
+    public static bool twoSideMirrors = true;
     public static bool audioMust = true;
     public static bool target1 = true;
     public static bool target2 = false;

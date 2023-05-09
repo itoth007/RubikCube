@@ -19,7 +19,7 @@ public class SetupCubeScript : MonoBehaviour
 {
     [SerializeField] float dropSpeed = 20f;
     [SerializeField] AudioClip dropAudio;
-    [SerializeField] int yOffset = 3;
+    [SerializeField] int yOffset = 3; 
     [SerializeField] float targetBottom = 0f;
     [SerializeField] int lastDroppedMiniCube = 26;
     GameObject[,,] miniCubes = new GameObject[3, 3, 3]; //Containx 3x3x3= 27 mini cubes
