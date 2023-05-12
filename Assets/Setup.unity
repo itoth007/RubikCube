@@ -2322,7 +2322,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dropSpeed: 20
   dropAudio: {fileID: 8300000, guid: 542a81ffa292c1d46ba0d9187d574366, type: 3}
-  yOffset: 3
+  yOffset: 10
   targetBottom: 0
   lastDroppedMiniCube: 26
   countDroppedMiniCubes: 0
@@ -3607,8 +3607,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ffded02b6ebd1546961c85dd05b5e63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dropSpeed: 8
-  yOffset: 5
+  dropSpeed: 12
+  yOffset: 20
   targetBottomY: -25
   lastDroppedMiniCube: 1
   changeColor: {fileID: 0}

@@ -91,8 +91,6 @@ public class SetupScript : MonoBehaviour
         startDroppingCubes = true; // that is a trigger for update to begin dropping minicubes, if it is ready that set nowYouCanPlay true
         setupCubeScript.countDroppedMiniCubes = 0;
         if (nowYouCanPlay)
-        {
             SceneManager.LoadScene("Rubik");
-        }
     }
 }
