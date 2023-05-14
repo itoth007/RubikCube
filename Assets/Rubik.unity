@@ -10592,7 +10592,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timeRate: 0.0001
   nrOfTurnText: {fileID: 692041904}
-  angleStep: 3
+  angleSpeed: 180
   dropSpeed: 7
   turnAudio: {fileID: 8300000, guid: 12b68d9e5a94b2f42b740ffdab894b3e, type: 3}
   dropAudio: {fileID: 8300000, guid: 542a81ffa292c1d46ba0d9187d574366, type: 3}
