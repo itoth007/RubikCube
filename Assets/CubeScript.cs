@@ -15,6 +15,8 @@ using static UnityEngine.GraphicsBuffer;
 using UnityEngine.SceneManagement;
 using static UnityEngine.GridBrushBase;
 using static UnityEditor.Experimental.GraphView.GraphView;
+using static Unity.VisualScripting.Member;
+using UnityEngine.SocialPlatforms;
 
 public class CubeScript : MonoBehaviour
 {
@@ -30,6 +32,7 @@ public class CubeScript : MonoBehaviour
     [SerializeField] GameObject twoSideMirrorsGameObjectB;
     [SerializeField] GameObject twoSideMirrorsGameObjectTextA;
     [SerializeField] GameObject twoSideMirrorsGameObjectTextB;
+    [SerializeField] GameObject bomb;
     Vector3 pivotPoint = new Vector3(0, 0, 0); // Origo of rotates
     int currentAngle = 0;
     int angleStep = 0;
@@ -161,6 +164,9 @@ public class CubeScript : MonoBehaviour
         else // Game ended
         {
             Debug.Log("Game Ended");
+            transform.GetChild(13).localScale = Vector3.one*1.5f;
+            transform.GetChild(13).GetComponent<Rigidbody>().AddExplosionForce(3f, transform.GetChild(13).transform.position,2f,up,ForceMode.Impulse);
+            //bomb.SetActive(true);
         }
         // End of play?
         ExitRubik();
@@ -679,6 +685,7 @@ public class CubeScript : MonoBehaviour
                 if (!cubeMoves && hitTransform.parent.parent != null)
                     if (hitTransform.parent.parent.name == "RubikCube")
                     {
+                        Debug.Log(hitTransform.GetSiblingIndex());
                         if (hitTransform.GetSiblingIndex() == 0)
                             mousetouched = "Front";
                         else if (hitTransform.GetSiblingIndex() == 1)
