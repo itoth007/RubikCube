@@ -79,6 +79,7 @@ public class CubeScript : MonoBehaviour
     AudioSource audioSource;
     bool gameEnded = false;
     bool alreadyTargetChecked = false;
+    bool alreadyGameOver = false;
 
     // Start is called before the first frame update
     void Start()
@@ -163,10 +164,14 @@ public class CubeScript : MonoBehaviour
         }
         else // Game ended
         {
-            Debug.Log("Game Ended");
-            transform.GetChild(13).localScale = Vector3.one*1.5f;
-            transform.GetChild(13).GetComponent<Rigidbody>().AddExplosionForce(3f, transform.GetChild(13).transform.position,2f,up,ForceMode.Impulse);
-            //bomb.SetActive(true);
+            if (!alreadyGameOver)
+            {
+                Debug.Log("Game Ended");
+                transform.GetChild(13).localScale = Vector3.one * 1.5f;
+                transform.GetChild(13).GetComponent<Rigidbody>().AddExplosionForce(3f, transform.GetChild(13).transform.position, 2f, up, ForceMode.Impulse);
+                //bomb.SetActive(true);
+                alreadyGameOver = true;
+            }
         }
         // End of play?
         ExitRubik();
