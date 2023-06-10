@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class CubeScript : MonoBehaviour
 {
-    private new Camera camera;
+    private Camera mainCamera;
     [SerializeField] Text nrOfTurnText; // on UI
     [SerializeField] int angularSpeed = 3; //rotation speed
     [SerializeField] float dropSpeed = 1f; // in firstround 27  mini cubes drop down from the sky and finally they become one rubik
@@ -18,11 +18,11 @@ public class CubeScript : MonoBehaviour
     [SerializeField] GameObject twoSideMirrorsGameObjectB; // mirror2 to see nonvisible side
     [SerializeField] GameObject twoSideMirrorsGameObjectTextB;
     [SerializeField] GameObject youWon; // "you won" button when player reached the target
-    [SerializeField] GameObject prevTipsButton;
+    [SerializeField] GameObject prevTipsButton; // help Tips
     [SerializeField] GameObject nextTipsButton;
-    [SerializeField] GameObject phaseObject;
+    [SerializeField] GameObject phaseObject; // Help phases
     Vector3 pivotPoint = new Vector3(0, 0, 0); // Origo of rotates
-    int currentAngle = 0; // How many angle rotated, it is a status (currentAngle 0 - +-90)
+    int currentAngle = 0; // How many angle already rotated, it is a status (currentAngle 0 - +-90)
     int angleStep = 0; // between two FPS
     int clockwise = 1; // rotation direction
     int counterClockwise = -1; // rotation direction back
@@ -40,7 +40,7 @@ public class CubeScript : MonoBehaviour
     bool pressedDownArrow = false; // Down arrow
     bool pressedLeftArrow = false; // Left arrow
     bool pressedRightArrow = false; // Right arrow
-    bool cubeMoves = false; // there is rotation or not
+    bool isCubeMoves = false; // there is rotation or not
     GameObject[,,] miniCubes = new GameObject[3, 3, 3]; //Contains 3x3x3= 27 mini cubes. During rotation all mini cubes move in array
     GameObject[] temporary9Cubes = new GameObject[9]; // During a turn only 9 cubes moves 
     int front = 0, right = 1, back = 2, left = 3, up = 4, down = 5; // six sides
@@ -54,17 +54,17 @@ public class CubeScript : MonoBehaviour
     int whichCubeClickedMouse_I_index; // during drag and rotate which cube was dragged from 27 mini cubes. I,J,K index in miniCubes = new GameObject[3, 3, 3] array
     int whichCubeClickedMouse_J_index;
     int whichCubeClickedMouse_K_index;
-    string mousetouched; // "Front" or "Up" or "Right". We see 3 sides
+    string mousetouched; // "Front" or "Up" or "Right" side. We see only 3 sides during drag and rotate
     Transform tempTransform; // for drag and rotate
     Transform hitTransform; // for drag and rotate
-    int[] sides = { 0, 0, 0, 0, 0, 0 }; // during rotation it is a parameters that show the future sides
+    int[] sides = { 0, 0, 0, 0, 0, 0 }; // during rotation it is a parameters that show the future sidemoves
     bool firstRound = true; // Minicubes drop down from the sky
     bool secondRound = false; // mix rubik cube
     int countDroppedMiniCubes = 0; // two parameters for dropping miniCubes from the sky
     int numberOfMiniCube = 0;
     float scaleRubik = 0; // local scale of minicubes
     AudioSource audioSource;
-    bool gameEnded = false;
+    bool isGameEnded = false;
     bool alreadyTargetChecked = false;
     bool alreadyGameOver = false;
     int tipsPhase = 1; // at start we begins 1st phase
@@ -81,7 +81,7 @@ public class CubeScript : MonoBehaviour
         twoSideMirrorsGameObjectTextB.SetActive(SetupScript.twoSideMirrors);
         youWon.SetActive(false);
 
-        camera = Camera.main; // for Raycast
+        mainCamera = Camera.main; // for Raycast
         for (int i = 0; i < 3; i++) // fill in 27 cube object
         {
             for (int j = 0; j < 3; j++)
@@ -92,13 +92,13 @@ public class CubeScript : MonoBehaviour
                 }
             }
         }
-        scaleRubik = miniCubes[2, 2, 2].transform.parent.localScale.x;
+        scaleRubik = miniCubes[2, 2, 2].transform.parent.localScale.x; // each has the same scale, therefor I pick up the last one
         audioSource = GetComponent<AudioSource>();
     } // End of Start
     // Update is called once per frame
     void Update()
     {
-        if (!gameEnded) // not ended
+        if (!isGameEnded) // not ended
         {
             if (firstRound) // MiniCube drop down from the sky
                 FirstRound();
@@ -209,7 +209,7 @@ public class CubeScript : MonoBehaviour
     void SecondRound() // Mix the Rubik cude
     {
         MixCube(); // run 3x in each 4 rotation - total 12
-                   //MixCube(); 
+                   //MixCube(); //it is commented, because I don want to mix it too complicatedly
                    //MixCube();
         pressedL = false; pressedR = false; pressedF = false; pressedB = false; pressedD = false; pressedY = false; pressedU = false; pressedH = false; pressedX = false; pressedZ = false;
         pressedUpArrow = false; pressedDownArrow = false; pressedRightArrow = false; pressedLeftArrow = false;
@@ -297,7 +297,7 @@ public class CubeScript : MonoBehaviour
     } //End of WhichLetterPressed
     bool LetterPressed(KeyCode letter, bool LetterPressed) // certain letter pressed? The output is LetterPressed bool
     {
-        if (Input.GetKeyDown(letter) == true && !cubeMoves)
+        if (Input.GetKeyDown(letter) == true && !isCubeMoves)
         {
             // base state everything is false
             pressedL = false; pressedR = false; pressedF = false; pressedB = false; pressedD = false; pressedY = false; pressedU = false; pressedX = false; pressedZ = false;
@@ -329,7 +329,7 @@ public class CubeScript : MonoBehaviour
     } // End of WhichArrowKeyPressed
     bool ArrowKeyPressed(KeyCode arrowKey, bool arrowKeyPressed) // certain arrowKey pressed? The output is arrowKeyPressed bool
     {
-        if (Input.GetKeyDown(arrowKey) == true && !cubeMoves)
+        if (Input.GetKeyDown(arrowKey) == true && !isCubeMoves)
         {
             pressedUpArrow = false; pressedDownArrow = false; pressedRightArrow = false; pressedLeftArrow = false;
             return true; // arrowKeyPressed bool changed
@@ -453,7 +453,7 @@ public class CubeScript : MonoBehaviour
         }
         else
             return;
-        cubeMoves = true;
+        isCubeMoves = true;
         int step = (int)(angularSpeed * Time.deltaTime);
         var currentAngleTemp = currentAngle + step;
         currentAngle = (int)Mathf.Clamp(currentAngleTemp, -180f, 180f); // max +-90 degree
@@ -470,7 +470,7 @@ public class CubeScript : MonoBehaviour
         if (Math.Abs(currentAngle) >= 180f)
         {
             currentAngle = 0;
-            cubeMoves = false;
+            isCubeMoves = false;
             if (pressedH)
             {
                 wholeCubeRotated = true;
@@ -500,9 +500,9 @@ public class CubeScript : MonoBehaviour
     {
         pressedLetterBool = true;
         pressedArrowBool = true;
-        if (!cubeMoves)
+        if (!isCubeMoves)
         {
-            cubeMoves = true;
+            isCubeMoves = true;
             int temp = 0;
             int iFrom = 0, iTo = 3, jFrom = 0, jTo = 3, kFrom = 0, kTo = 3;
             if (axis == 'X')
@@ -584,7 +584,7 @@ public class CubeScript : MonoBehaviour
                 nrOfTurn++;
                 nrOfTurnText.text = nrOfTurn.ToString();
             }
-            cubeMoves = false;
+            isCubeMoves = false;
         }
     } // End of rotate9Cubes
     void order9cubes(int convers) // Which 9 minicubes are rotated and which direction, that determines changes of the position of 9 cubes in MiniCubes matrix
@@ -668,14 +668,14 @@ public class CubeScript : MonoBehaviour
         if (Input.GetMouseButtonDown(0)) // mouse left button pushed
         {
             firstMousePosition = Input.mousePosition; // start position - user pull the mouse during  pushed the left button. When release it, it tells the rotation of cube
-            Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit))
             {
                 foundGameobject = true;
                 hitTransform = hit.collider.transform;
                 //Debug.Log(hitTransform.name);
-                if (!cubeMoves && hitTransform.parent.parent != null)
+                if (!isCubeMoves && hitTransform.parent.parent != null)
                     if (hitTransform.parent.parent.name == "RubikCube")
                     {
                         if (hitTransform.GetSiblingIndex() == 0)
@@ -711,7 +711,7 @@ public class CubeScript : MonoBehaviour
             if (foundGameobject)
             {
                 mouseDirection = GetRotationDirection(); // X or Y or Z plus or minus
-                if (!cubeMoves && hitTransform.parent.parent != null)
+                if (!isCubeMoves && hitTransform.parent.parent != null)
                     if (hitTransform.parent.parent.name == "RubikCube")
                     {
                         //Debug.Log(mousetouched);
@@ -957,7 +957,7 @@ public class CubeScript : MonoBehaviour
                     //Debug.Log("target1 ready" + side);
                     if (SetupScript.target1)
                     {
-                        gameEnded = true;
+                        isGameEnded = true;
                         return;
                     }
                     if (IsSideFaceLayerColorCorrect(side, 1)) // 1 means: side is white, but the 4 faces on 1. layer?
@@ -965,7 +965,7 @@ public class CubeScript : MonoBehaviour
                         //Debug.Log("target2 ready" + side);
                         if (SetupScript.target2)
                         {
-                            gameEnded = true;
+                            isGameEnded = true;
                             return;
                         }
                         if (IsSideFaceLayerColorCorrect(side, 2)) // 2 means: side is white, but the 4 faces on 1. layer?
@@ -973,7 +973,7 @@ public class CubeScript : MonoBehaviour
                             //Debug.Log("target3 ready" + side);
                             if (SetupScript.target3)
                             {
-                                gameEnded = true;
+                                isGameEnded = true;
                                 return;
                             }
                         }
@@ -1051,10 +1051,14 @@ public class CubeScript : MonoBehaviour
 
     void ExitRubik()
     {
-        if (Input.GetKeyDown(KeyCode.E)) // escape - game finishes
+        if (Input.GetKey("escape")) // game finishes
         {
             Application.Quit();
         }
+        //if (Input.GetKeyDown(KeyCode.E)) // escape - game finishes
+        //{
+        //    Application.Quit();
+        //}
     } // End of ExitRubik
     public void Setup() // Setup button 
     {
