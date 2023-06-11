@@ -135,8 +135,9 @@ public class CubeScript : MonoBehaviour
                     //Rotate the whole big Rubik cube to see non visible sides
                     Rotate27Cubes();//conditions inside
 
-                    // 2. Method - with mouse drag and rotate
-                    DetectObjectWithRaycast();
+                    // 2. Method - Mouse
+                    // With left mousebutton drag and rotate
+                    DetectMouseLeftWithRaycast();
 
                     // Target check - Colors are OK?
                     if (currentAngle == 0) // now there is no rotation
@@ -293,14 +294,14 @@ public class CubeScript : MonoBehaviour
         pressedD = LetterPressed(KeyCode.D, pressedD); // iF keyCode pressed, bool true otherwise nothing changes - DOWN SIDE
         pressedY = LetterPressed(KeyCode.Y, pressedY); // iF keyCode pressed, bool true otherwise nothing changes - MIDDLE SIDE between UP AND DOWN
         pressedU = LetterPressed(KeyCode.U, pressedU); // iF keyCode pressed, bool true otherwise nothing changes - UP SIDE
-        pressedH = LetterPressedAndReleased(KeyCode.H, pressedH); // iF keyCode pressed continously or whole cube rotates now then bool true
+        pressedH = LetterPressedAndReleased(KeyCode.H, pressedH); // iF keyCode pressed continously whole cube rotates horizontaly
     } //End of WhichLetterPressed
     bool LetterPressed(KeyCode letter, bool LetterPressed) // certain letter pressed? The output is LetterPressed bool
     {
         if (Input.GetKeyDown(letter) == true && !isCubeMoves)
         {
             // base state everything is false
-            pressedL = false; pressedR = false; pressedF = false; pressedB = false; pressedD = false; pressedY = false; pressedU = false; pressedX = false; pressedZ = false;
+            pressedL = false; pressedR = false; pressedF = false; pressedB = false; pressedD = false; pressedY = false; pressedU = false; pressedX = false; pressedZ = false; pressedH = false;
             return true; //LetterPressed bool changed
         }
         else
@@ -308,11 +309,11 @@ public class CubeScript : MonoBehaviour
     } //End of LetterPressed
     bool LetterPressedAndReleased(KeyCode letter, bool LetterPressed) // True pressed, false released
     {
-        if (Input.GetKey(letter) == true)
+        if (Input.GetKey(letter) == true) // || LetterPressed)
         {
             // base state everything is false
             pressedL = false; pressedR = false; pressedF = false; pressedB = false; pressedD = false; pressedY = false; pressedU = false; pressedX = false; pressedZ = false;
-            return true; //LetterPressed bool changed
+            return true;
         }
         else if (wholeCubeRotationInProgress)
             return true;
@@ -442,17 +443,20 @@ public class CubeScript : MonoBehaviour
     void Rotate27Cubes() // Rotate the whole cube - press and hold H key, turn 180 degrees, if user releases H key, turn back
     {
         bool direction;
-        if (pressedH && !wholeCubeRotated)
-        {
-            wholeCubeRotationInProgress = true;
-            direction = true;
-        }
-        else if (!pressedH && wholeCubeRotated)
-        {
-            direction = false;
-        }
-        else
-            return;
+            if (pressedH && !wholeCubeRotated)
+            {
+                wholeCubeRotationInProgress = true;
+                direction = true;
+            }
+            else if (!pressedH && wholeCubeRotated)
+            {
+                direction = false;
+
+            }
+            else
+            {
+                return;
+            }
         isCubeMoves = true;
         int step = (int)(angularSpeed * Time.deltaTime);
         var currentAngleTemp = currentAngle + step;
@@ -463,24 +467,19 @@ public class CubeScript : MonoBehaviour
         if (Math.Abs(currentAngle) <= 180f)
         {
             if (direction)
-                transform.RotateAround(pivotPoint, Vector3.forward + Vector3.right, step); // 180 degrees clockwise
+                transform.RotateAround(pivotPoint, Vector3.up, step); // 180 degrees 
             else
-                transform.RotateAround(pivotPoint, Vector3.back + Vector3.left, step); // 180 degrees back
+                transform.RotateAround(pivotPoint, Vector3.down, step); // 180 degrees back
         }
         if (Math.Abs(currentAngle) >= 180f)
         {
             currentAngle = 0;
             isCubeMoves = false;
+            wholeCubeRotationInProgress = false;
             if (pressedH)
-            {
                 wholeCubeRotated = true;
-                wholeCubeRotationInProgress = false;
-            }
             else
-            {
                 wholeCubeRotated = false;
-                wholeCubeRotationInProgress = false;
-            }
         }
     } // End of Rotate27Cubes
     void rotate9Cubes(int[] sides, char axis, int layer, int rotationDirection, out bool pressedLetterBool, out bool pressedArrowBool, int conversVersion)
@@ -498,6 +497,12 @@ public class CubeScript : MonoBehaviour
     // x, y, z : two values are zero, the third one is 1 (clockwise) és -1 (counterclockwise)
     // conversVersion : it is a code which determins the new positions of the miniCubes after rotate
     {
+        if (wholeCubeRotationInProgress) // with H button 180 degree
+        {
+            pressedLetterBool = false;
+            pressedArrowBool = false;
+            return;
+        }
         pressedLetterBool = true;
         pressedArrowBool = true;
         if (!isCubeMoves)
@@ -663,8 +668,9 @@ public class CubeScript : MonoBehaviour
         }
     }
     // DRAG AND ROTATE METHODS BEGIN
-    public void DetectObjectWithRaycast() // Raycast for drag and rotate
+    public void DetectMouseLeftWithRaycast() // Raycast for drag and rotate
     {
+        Vector4 colorSide; // during drag color changes
         if (Input.GetMouseButtonDown(0)) // mouse left button pushed
         {
             firstMousePosition = Input.mousePosition; // start position - user pull the mouse during  pushed the left button. When release it, it tells the rotation of cube
@@ -674,10 +680,13 @@ public class CubeScript : MonoBehaviour
             {
                 foundGameobject = true;
                 hitTransform = hit.collider.transform;
-                //Debug.Log(hitTransform.name);
                 if (!isCubeMoves && hitTransform.parent.parent != null)
                     if (hitTransform.parent.parent.name == "RubikCube")
                     {
+                        //Debug.Log(hitTransform.name);
+                        colorSide = hitTransform.GetComponent<MeshRenderer>().material.color;
+                        colorSide.w = 0.3f; // transparent
+                        hitTransform.GetComponent<MeshRenderer>().material.color = colorSide;
                         if (hitTransform.GetSiblingIndex() == 0)
                             mousetouched = "Front";
                         else if (hitTransform.GetSiblingIndex() == 1)
@@ -714,6 +723,10 @@ public class CubeScript : MonoBehaviour
                 if (!isCubeMoves && hitTransform.parent.parent != null)
                     if (hitTransform.parent.parent.name == "RubikCube")
                     {
+                        colorSide = hitTransform.GetComponent<MeshRenderer>().material.color;
+                        colorSide.w = 1f; // finish transparent
+                        hitTransform.GetComponent<MeshRenderer>().material.color = colorSide;
+
                         //Debug.Log(mousetouched);
                         //Debug.Log(mouseDirection);
                         //Debug.Log("indexek:                                " + whichCubeClickedMouse_I_index + " " + whichCubeClickedMouse_J_index + " " + whichCubeClickedMouse_K_index);
@@ -777,7 +790,7 @@ public class CubeScript : MonoBehaviour
                     }
             }
         }
-    } // End of DetectObjectWithRaycast
+    } // End of DetectMouseLeftWithRaycast
     void rotateCounterClockwiseAxisX(int index)
     {
         switch (index)
@@ -1075,7 +1088,7 @@ public class CubeScript : MonoBehaviour
     public void tipsNext()
     {
         tipsPhase++;
-        setPhases(tipsPhase, tipsPhase-1);// 2 phase active setting
+        setPhases(tipsPhase, tipsPhase - 1);// 2 phase active setting
         if (tipsPhase == lastPhase) // last tip
             nextTipsButton.SetActive(false);
         else
@@ -1085,7 +1098,7 @@ public class CubeScript : MonoBehaviour
     public void tipsPrev()
     {
         tipsPhase--;
-        setPhases(tipsPhase, tipsPhase+1); // 2 phase active setting
+        setPhases(tipsPhase, tipsPhase + 1); // 2 phase active setting
         if (tipsPhase == 1) // first tip
             prevTipsButton.SetActive(false);
         else
