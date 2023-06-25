@@ -88,7 +88,7 @@ public class CubeScript : MonoBehaviour
             {
                 for (int z = 0; z < 3; z++)
                 {
-                    miniCubes[i, j, z] = gameObject.transform.GetChild(i * 9 + j * 3 + z).gameObject; // fill in the 3x3 matrix with 27 cubes
+                    miniCubes[i, j, z] = gameObject.transform.GetChild(i * 9 + j * 3 + z).gameObject; // fill in the 3x3x3 matrix with 27 cubes
                 }
             }
         }
@@ -157,7 +157,7 @@ public class CubeScript : MonoBehaviour
         {
             if (!alreadyGameOver)
             {
-                transform.GetChild(13).localScale = Vector3.one * 1.5f; // 13 the middle of Rubik
+                transform.GetChild(13).localScale = Vector3.one * 1.5f; // 13th, the middle of Rubik
                 transform.GetChild(13).GetComponent<Rigidbody>().AddExplosionForce(3f, transform.GetChild(13).transform.position, 2f, up, ForceMode.Impulse); //13 the center of Rubik
                 Invoke(nameof(YouWonMethod), 2f); // 2s after explosion
                 alreadyGameOver = true;
@@ -908,7 +908,6 @@ public class CubeScript : MonoBehaviour
     // COLOR CHECK BEGINS
     void TargetCheck()
     {
-        //string whiteCenterWhere = "nincs";
         //Debug.Log(miniCubes[1, 0, 1].transform.GetChild(front).name);
         //Debug.Log($"{SetupScript.target1}, {SetupScript.target2}, {SetupScript.target3} ");
         ColorCheck(front);
@@ -922,7 +921,7 @@ public class CubeScript : MonoBehaviour
     {
         int iFrom = 0, iTo = 3, jFrom = 0, jTo = 3, kFrom = 0, kTo = 3;
         int i = 0, j = 0, k = 0; ;
-        if (side == front)
+        if (side == front) // define here with indexes the 9 cubes from 27, I check colors later
         {
             jFrom = 0; jTo = 1; i = 1; j = 0; k = 1;
         }
@@ -946,7 +945,7 @@ public class CubeScript : MonoBehaviour
         {
             iFrom = 0; iTo = 1; i = 0; j = 1; k = 1;
         }
-        if (miniCubes[i, j, k].transform.GetChild(side).name == "White")
+        if (miniCubes[i, j, k].transform.GetChild(side).name == "White") // one side is white?
         {
             //Debug.Log($"{SetupScript.target1}, {SetupScript.target2}, {SetupScript.target3} ");
             bool totalWhite = true;
@@ -962,7 +961,7 @@ public class CubeScript : MonoBehaviour
                     }
                 }
             }
-            if (totalWhite) // one side is total white, but the side of the white?
+            if (totalWhite) // one side is total white, but the side of the white? szélei a fehér oldalnak
             {
                 //Debug.Log("Hurrá " + side);
                 if (IsSideFaceLayerColorCorrect(side, 0)) // 0 means: side is white, but the 4 faces on 0. layer?
@@ -981,7 +980,7 @@ public class CubeScript : MonoBehaviour
                             isGameEnded = true;
                             return;
                         }
-                        if (IsSideFaceLayerColorCorrect(side, 2)) // 2 means: side is white, but the 4 faces on 1. layer?
+                        if (IsSideFaceLayerColorCorrect(side, 2)) // 2 means: side is white, but the 4 faces on 2. layer? // means rubik total ready
                         {
                             //Debug.Log("target3 ready" + side);
                             if (SetupScript.target3)
@@ -1068,10 +1067,6 @@ public class CubeScript : MonoBehaviour
         {
             Application.Quit();
         }
-        //if (Input.GetKeyDown(KeyCode.E)) // escape - game finishes
-        //{
-        //    Application.Quit();
-        //}
     } // End of ExitRubik
     public void Setup() // Setup button 
     {
